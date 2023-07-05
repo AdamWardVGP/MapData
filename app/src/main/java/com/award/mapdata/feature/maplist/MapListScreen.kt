@@ -20,26 +20,51 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import com.award.mapdata.R
 import com.award.mapdata.data.DownloadState
+import com.award.mapdata.data.MapDataPreviewParamProvider
 import com.award.mapdata.data.MapItemListElement
+import com.award.mapdata.data.MapPreviewData
 import com.award.mapdata.data.ViewMapInfo
 import com.award.mapdata.ui.theme.MapDataTheme
 
 @Composable
-fun mapItemList(
+fun MapItemList(
     mapListItems: List<MapItemListElement>,
 ) {
     LazyColumn() {
         items(mapListItems, contentType = { it.viewType }) {
             when (it) {
-                MapItemListElement.Divider -> TODO()
-                is MapItemListElement.Header -> TODO()
-                is MapItemListElement.MapElement -> TODO()
+                MapItemListElement.Divider -> {
+                    Divider()
+                }
+                is MapItemListElement.Header -> {
+                    HeaderRow(title = it.title)
+                }
+                is MapItemListElement.MapElement -> {
+                    MapRow(
+                        mapInfo = it.mapInfo,
+                        requestDelete = {  },
+                        requestDownload = {  }) {
+                    }
+                }
             }
         }
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFFFFFFFF, widthDp = 540, heightDp = 1200)
+@Composable
+fun PreviewSampleColumn(
+    @PreviewParameter(MapDataPreviewParamProvider::class)
+    sampleMapElements: List<MapItemListElement>
+) {
+    MapDataTheme {
+        MapItemList(sampleMapElements)
     }
 }
 
@@ -49,7 +74,7 @@ fun mapItemList(
 fun HeaderRow(title: String) {
     Text(
         text = title,
-        style = MaterialTheme.typography.headlineMedium,
+        style = MaterialTheme.typography.headlineMedium.copy(Color(0xFF212121)),
         modifier = Modifier
             .padding(27.dp, 22.dp)
             .fillMaxWidth()
@@ -116,14 +141,15 @@ fun MapRow(
 
             Text(
                 text = mapInfo.title,
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.headlineMedium.copy(Color(0xFF212121)),
                 maxLines = 1
             )
 
             Text(
                 text = mapInfo.description,
-                style = MaterialTheme.typography.bodyMedium,
-                maxLines = 3
+                style = MaterialTheme.typography.bodyMedium.copy(Color(0xFF212121)),
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis
             )
         }
         when (mapInfo.downloadState) {
@@ -147,14 +173,14 @@ fun MapRow(
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFFFFFFFF, widthDp = 540) //x 2400
+@Preview(showBackground = true, backgroundColor = 0xFFFFFFFF, widthDp = 540)
 @Composable
 fun previewMapRow() {
     Surface {
         MapRow(
             ViewMapInfo(
-                title = "test",
-                description = "description text that can go on for awhile. This text is pretty long and should truncate itself so that it's only a few lines max and doesnt fill up the screen unneccisarily",
+                title = "Explore Maine",
+                description = "Maine is a state in the New England region of the northeast United States. Maine is the 12th smallest by area, the 9th least some more text that I can't see from the default preview",
                 downloadState = DownloadState.Unavailable
             ),
             { }, { }, { }

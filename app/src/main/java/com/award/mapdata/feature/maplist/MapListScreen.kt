@@ -1,8 +1,12 @@
 package com.award.mapdata.feature.maplist
 
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,6 +16,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -19,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -118,16 +126,17 @@ fun DividerPreview() {
 @Composable
 fun MapRow(
     mapInfo: ViewMapInfo,
-    requestDelete: () -> Unit,
-    requestDownload: () -> Unit,
-    onMapInfoSelected: () -> Unit
+    requestDelete: (ViewMapInfo) -> Unit,
+    requestDownload: (ViewMapInfo) -> Unit,
+    onMapInfoSelected: (ViewMapInfo) -> Unit
 ) {
 
     Row(
         modifier = Modifier
             .padding(26.dp, 10.dp)
             .wrapContentHeight()
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clickable { onMapInfoSelected(mapInfo) },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
@@ -153,23 +162,46 @@ fun MapRow(
         }
         when (mapInfo.downloadState) {
             is DownloadState.Downloaded -> {
-                //download is complete, allow deleting map
+                SpacedRowIcon(R.drawable.delete, mapInfo, requestDelete)
             }
 
             is DownloadState.Downloading -> {
+                Spacer(modifier = Modifier.size(26.dp))
                 //download is in progress, update progress indicator
-
+                CircularProgressIndicator(
+                    progress = mapInfo.downloadState.progressPercentage,
+                    color = Color(0xFF5114DB),
+                    strokeWidth = 5.dp
+                )
+                Spacer(modifier = Modifier.size(23.dp))
             }
 
             is DownloadState.Idle -> {
-                //download available requires rendering download asset
+                SpacedRowIcon(R.drawable.download, mapInfo, requestDownload)
             }
             is DownloadState.Unavailable -> {
                 Spacer(modifier = Modifier.size(29.dp))
-                //No-op - downloading not supported, no UI to be shown
             }
         }
     }
+}
+
+@Composable
+fun SpacedRowIcon(@DrawableRes iconRes: Int, mapInfo: ViewMapInfo, clickHandler: (ViewMapInfo) -> Unit) {
+    Spacer(modifier = Modifier.size(25.dp))
+    Button(
+        onClick = { clickHandler(mapInfo) },
+        colors = ButtonDefaults.buttonColors(Color.Transparent),
+        contentPadding = PaddingValues(0.dp)) {
+        Image(
+            painter = painterResource(iconRes),
+            contentDescription = "Download",
+            modifier = Modifier
+                .size(48.dp)
+                .padding(8.dp)
+        )
+    }
+    Spacer(modifier = Modifier.size(14.dp))
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFFFFFFFF, widthDp = 540)

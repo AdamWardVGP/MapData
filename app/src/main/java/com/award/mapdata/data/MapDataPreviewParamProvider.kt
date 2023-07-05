@@ -32,7 +32,7 @@ object MapPreviewData {
             mapInfo = ViewMapInfo(
                 title = "Boston",
                 description = "Maine is a state int he New England region of the northeastern United States. Maine is the 12th smallest",
-                downloadState = DownloadState.Downloading(50f)
+                downloadState = DownloadState.Downloading(0.57f)
             )
         ),
         MapElement(
@@ -53,7 +53,7 @@ object MapPreviewData {
             mapInfo = ViewMapInfo(
                 title = "Caribou",
                 description = "Caribou is the second largest city in Aroostook County, Maine, United States. Its population was 8189 at",
-                downloadState = DownloadState.Downloading(22f)
+                downloadState = DownloadState.Downloading(0.22f)
             )
         ),
         MapElement(

@@ -63,6 +63,5 @@ object MapPreviewData {
                 downloadState = DownloadState.Downloaded
             )
         ),
-
     )
 }

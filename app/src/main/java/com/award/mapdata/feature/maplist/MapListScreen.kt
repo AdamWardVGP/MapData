@@ -28,7 +28,6 @@ import com.award.mapdata.R
 import com.award.mapdata.data.DownloadState
 import com.award.mapdata.data.MapDataPreviewParamProvider
 import com.award.mapdata.data.MapItemListElement
-import com.award.mapdata.data.MapPreviewData
 import com.award.mapdata.data.ViewMapInfo
 import com.award.mapdata.ui.theme.MapDataTheme
 

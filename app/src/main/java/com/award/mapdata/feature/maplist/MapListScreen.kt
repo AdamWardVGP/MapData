@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -52,13 +51,13 @@ fun HeaderRow(title: String) {
         text = title,
         style = MaterialTheme.typography.headlineMedium,
         modifier = Modifier
-            .padding(54.dp, 45.dp)
+            .padding(27.dp, 22.dp)
             .fillMaxWidth()
             .wrapContentHeight()
     )
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFFFFFFFF, widthDp = 1080)
+@Preview(showBackground = true, backgroundColor = 0xFFFFFFFF, widthDp = 540)
 @Composable
 fun HeaderPreview() {
     MapDataTheme {
@@ -70,20 +69,20 @@ fun HeaderPreview() {
 fun Divider() {
     Box(
         Modifier
-            .padding(horizontal = 10.dp)
+            .padding(horizontal = 5.dp)
             .height(1.dp)
             .fillMaxWidth()
             .background(Color(0xFFE0E0E0))
     )
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFFFFFFFF, widthDp = 1080)
+@Preview(showBackground = true, backgroundColor = 0xFFFFFFFF, widthDp = 540)
 @Composable
 fun DividerPreview() {
     MapDataTheme {
         Row(
             modifier = Modifier
-                .height(20.dp)
+                .height(10.dp)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -102,17 +101,17 @@ fun MapRow(
 
     Row(
         modifier = Modifier
-            .padding(52.dp, 21.dp)
+            .padding(26.dp, 10.dp)
             .wrapContentHeight()
             .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
-                .size(262.dp, 176.dp)
+                .size(131.dp, 88.dp)
                 .background(Color(0xFFC3DBF9))
         )
-        Spacer(modifier = Modifier.size(23.dp))
+        Spacer(modifier = Modifier.size(11.dp))
         Column(modifier = Modifier.weight(1f)) {
 
             Text(
@@ -141,14 +140,14 @@ fun MapRow(
                 //download available requires rendering download asset
             }
             is DownloadState.Unavailable -> {
-                Spacer(modifier = Modifier.size(58.dp))
+                Spacer(modifier = Modifier.size(29.dp))
                 //No-op - downloading not supported, no UI to be shown
             }
         }
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFFFFFFFF, widthDp = 1080) //x 2400
+@Preview(showBackground = true, backgroundColor = 0xFFFFFFFF, widthDp = 540) //x 2400
 @Composable
 fun previewMapRow() {
     Surface {

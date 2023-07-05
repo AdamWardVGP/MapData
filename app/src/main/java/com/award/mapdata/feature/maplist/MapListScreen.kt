@@ -38,13 +38,21 @@ import com.award.mapdata.R
 import com.award.mapdata.data.DownloadState
 import com.award.mapdata.data.MapDataPreviewParamProvider
 import com.award.mapdata.data.MapItemListElement
+import com.award.mapdata.data.MapPreviewData
 import com.award.mapdata.data.MapPreviewData.unavailableDownloadMapInfoSample
 import com.award.mapdata.data.ViewMapInfo
 import com.award.mapdata.ui.theme.MapDataTheme
 
 @Composable
+fun MapListScreen(openMapDetails: (ViewMapInfo) -> Unit) {
+    //TODO hook up with viewmodel
+    MapItemList(MapPreviewData.dataElements, openMapDetails)
+}
+
+@Composable
 fun MapItemList(
     mapListItems: List<MapItemListElement>,
+    openMapDetails: (ViewMapInfo) -> Unit
 ) {
     LazyColumn() {
         items(mapListItems, contentType = { it.viewType }) {
@@ -59,8 +67,8 @@ fun MapItemList(
                     MapRow(
                         mapInfo = it.mapInfo,
                         requestDelete = {  },
-                        requestDownload = {  }) {
-                    }
+                        requestDownload = {  },
+                        onMapInfoSelected = openMapDetails)
                 }
             }
         }
@@ -74,7 +82,7 @@ fun PreviewSampleColumn(
     sampleMapElements: List<MapItemListElement>
 ) {
     MapDataTheme {
-        MapItemList(sampleMapElements)
+        MapItemList(sampleMapElements) { }
     }
 }
 

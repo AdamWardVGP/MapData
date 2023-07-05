@@ -1,6 +1,7 @@
 package com.award.mapdata.feature.maplist
 
 import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -36,6 +38,7 @@ import com.award.mapdata.R
 import com.award.mapdata.data.DownloadState
 import com.award.mapdata.data.MapDataPreviewParamProvider
 import com.award.mapdata.data.MapItemListElement
+import com.award.mapdata.data.MapPreviewData.unavailableDownloadMapInfoSample
 import com.award.mapdata.data.ViewMapInfo
 import com.award.mapdata.ui.theme.MapDataTheme
 
@@ -99,12 +102,12 @@ fun HeaderPreview() {
 
 @Composable
 fun Divider() {
-    Box(
-        Modifier
-            .padding(horizontal = 5.dp)
-            .height(1.dp)
-            .fillMaxWidth()
-            .background(Color(0xFFE0E0E0))
+    Box(modifier = Modifier
+        .padding(horizontal = 5.dp)
+        .height(1.dp)
+        .fillMaxWidth()
+        .background(Color(0xFFE0E0E0))
+        .testTag("divider")
     )
 }
 
@@ -162,7 +165,7 @@ fun MapRow(
         }
         when (mapInfo.downloadState) {
             is DownloadState.Downloaded -> {
-                SpacedRowIcon(R.drawable.delete, mapInfo, requestDelete)
+                SpacedRowIcon(R.drawable.delete, mapInfo, requestDelete, R.string.delete)
             }
 
             is DownloadState.Downloading -> {
@@ -171,13 +174,14 @@ fun MapRow(
                 CircularProgressIndicator(
                     progress = mapInfo.downloadState.progressPercentage,
                     color = Color(0xFF5114DB),
-                    strokeWidth = 5.dp
+                    strokeWidth = 5.dp,
+                    modifier = Modifier.testTag("progress_indicator")
                 )
                 Spacer(modifier = Modifier.size(23.dp))
             }
 
             is DownloadState.Idle -> {
-                SpacedRowIcon(R.drawable.download, mapInfo, requestDownload)
+                SpacedRowIcon(R.drawable.download, mapInfo, requestDownload, R.string.download)
             }
             is DownloadState.Unavailable -> {
                 Spacer(modifier = Modifier.size(29.dp))
@@ -187,7 +191,8 @@ fun MapRow(
 }
 
 @Composable
-fun SpacedRowIcon(@DrawableRes iconRes: Int, mapInfo: ViewMapInfo, clickHandler: (ViewMapInfo) -> Unit) {
+fun SpacedRowIcon(@DrawableRes iconRes: Int, mapInfo: ViewMapInfo,
+                  clickHandler: (ViewMapInfo) -> Unit, @StringRes description: Int) {
     Spacer(modifier = Modifier.size(25.dp))
     Button(
         onClick = { clickHandler(mapInfo) },
@@ -195,7 +200,7 @@ fun SpacedRowIcon(@DrawableRes iconRes: Int, mapInfo: ViewMapInfo, clickHandler:
         contentPadding = PaddingValues(0.dp)) {
         Image(
             painter = painterResource(iconRes),
-            contentDescription = "Download",
+            contentDescription = stringResource(id = description),
             modifier = Modifier
                 .size(48.dp)
                 .padding(8.dp)
@@ -209,11 +214,7 @@ fun SpacedRowIcon(@DrawableRes iconRes: Int, mapInfo: ViewMapInfo, clickHandler:
 fun previewMapRow() {
     Surface {
         MapRow(
-            ViewMapInfo(
-                title = "Explore Maine",
-                description = "Maine is a state in the New England region of the northeast United States. Maine is the 12th smallest by area, the 9th least some more text that I can't see from the default preview",
-                downloadState = DownloadState.Unavailable
-            ),
+            unavailableDownloadMapInfoSample,
             { }, { }, { }
         )
     }

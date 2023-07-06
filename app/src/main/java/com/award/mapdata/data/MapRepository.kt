@@ -2,12 +2,13 @@ package com.award.mapdata.data
 
 import com.arcgismaps.tasks.offlinemaptask.PreplannedMapArea
 import com.award.mapdata.data.entity.ViewMapInfo
+import javax.inject.Inject
 
 abstract class MapRepository {
     abstract suspend fun getTopLevelMap(id: String): List<ViewMapInfo>?
 }
 
-class EsriMapRepository constructor(
+class EsriMapRepository @Inject constructor(
     private val remoteDataSource: MapDataSource<PreplannedMapArea>,
     private val mapDataDomainConverter: MapDataConverter<PreplannedMapArea>): MapRepository() {
 

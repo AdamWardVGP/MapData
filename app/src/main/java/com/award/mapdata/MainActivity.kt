@@ -25,9 +25,11 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.award.mapdata.navigation.MapDataNavHost
 import com.award.mapdata.ui.theme.MapDataTheme
+import dagger.hilt.android.AndroidEntryPoint
+
 //import dagger.hilt.android.AndroidEntryPoint
 
-//@AndroidEntryPoint
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

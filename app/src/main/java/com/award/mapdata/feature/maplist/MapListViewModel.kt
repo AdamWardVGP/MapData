@@ -1,5 +1,6 @@
 package com.award.mapdata.feature.maplist
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.award.mapdata.MapDataApplication
@@ -9,12 +10,16 @@ import com.award.mapdata.data.entity.MapItemListElement
 import com.award.mapdata.data.entity.MapItemListElement.Divider
 import com.award.mapdata.data.entity.MapItemListElement.Header
 import com.award.mapdata.data.MapRepository
-//import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-//@HiltViewModel
-class MapListViewModel(private val mapRepository: MapRepository, application: MapDataApplication)
+@HiltViewModel
+class MapListViewModel @Inject constructor(
+    private val mapRepository: MapRepository,
+    @ApplicationContext context: Context)
     : ViewModel() {
 
     //TODO Loading states?
@@ -23,8 +28,8 @@ class MapListViewModel(private val mapRepository: MapRepository, application: Ma
 
     // Titles currently hardcoded. Language config changes currently don't update our string res
     // nor do we perform fetches to the data layer to update any text from the server.
-    private val webHeaderText = application.getString(R.string.web_map)
-    private val mapAreaText = application.getString(R.string.map_area)
+    private val webHeaderText = context.getString(R.string.web_map)
+    private val mapAreaText = context.getString(R.string.map_area)
 
     init {
         populateList()

@@ -1,8 +1,8 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
-//    id 'kotlin-kapt'
-//    id 'com.google.dagger.hilt.android'
+    id 'kotlin-kapt'
+    id 'com.google.dagger.hilt.android'
 }
 
 android {
@@ -28,6 +28,8 @@ android {
         buildConfig true
     }
 
+    //Since we're checking our repo into local source control, our API key is hidden in local.properties
+    // It could be worthwhile to setup a CLI arg for our CI build environment to embed the key.
     def localProperties = new Properties()
     def localPropertiesFile = rootProject.file('local.properties')
     if (localPropertiesFile.exists()) {
@@ -45,11 +47,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
     }
     composeOptions {
         kotlinCompilerExtensionVersion '1.4.8'
@@ -75,8 +77,8 @@ dependencies {
 
     implementation 'com.esri:arcgis-maps-kotlin:200.1.0'
 
-//    implementation "com.google.dagger:hilt-android:2.44"
-//    kapt "com.google.dagger:hilt-compiler:2.44"
+    implementation "com.google.dagger:hilt-android:2.44"
+    kapt "com.google.dagger:hilt-compiler:2.44"
 
     implementation "androidx.navigation:navigation-compose:2.6.0"
 
@@ -90,7 +92,7 @@ dependencies {
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
 }
 
-// Allow references to generated code
-//kapt {
-//    correctErrorTypes true
-//}
+// Allow references to generated code (hilt)
+kapt {
+    correctErrorTypes true
+}

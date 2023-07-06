@@ -7,9 +7,9 @@ import com.award.mapdata.data.entity.MapID.*
 import com.award.mapdata.data.entity.ViewMapInfo
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-//import javax.inject.Inject
+import javax.inject.Inject
 
-class EsriMapDataConverter constructor() : MapDataConverter<PreplannedMapArea>() {
+class EsriMapDataConverter @Inject constructor() : MapDataConverter<PreplannedMapArea>() {
     override fun convertToGenericData(mapData: PreplannedMapArea): ViewMapInfo {
         return ViewMapInfo(
             itemId = EsriID(mapData.portalItem.itemId),

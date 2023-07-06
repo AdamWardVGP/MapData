@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Application constants -->
+    <string name="page_launch_id" translatable="false">3bc3179f17da44a0ac0bfdac4ad15664</string>
+    <string name="esri_base_uri" translatable="false">https://www.arcgis.com/</string>
+</resources>

@@ -30,7 +30,12 @@ class MapListTest {
     fun checkExpectedContents_whenRowIsAHeader() {
         val testTitle = "Test Title"
         composeRule.setContent {
-            MapItemList(mapListItems = listOf(MapItemListElement.Header(testTitle))) { }
+            MapItemList(
+                mapListItems = listOf(MapItemListElement.Header(testTitle)),
+                { },
+                viewModel::triggerDelete,
+                viewModel::triggerDownload
+            )
         }
 
         composeRule.onNode(hasText(testTitle)).assertExists()
@@ -39,7 +44,12 @@ class MapListTest {
     @Test
     fun checkExpectedContents_whenRowIsADivider() {
         composeRule.setContent {
-            MapItemList(mapListItems = listOf(MapItemListElement.Divider)) { }
+            MapItemList(
+                mapListItems = listOf(MapItemListElement.Divider),
+                { },
+                viewModel::triggerDelete,
+                viewModel::triggerDownload
+            )
         }
 
         composeRule.onNode(hasTestTag("divider")).assertExists()
@@ -51,7 +61,12 @@ class MapListTest {
         val sampleData = unavailableDownloadMapInfoSample
 
         composeRule.setContent {
-            MapItemList(mapListItems = listOf(MapItemListElement.MapElement(sampleData))) { }
+            MapItemList(
+                mapListItems = listOf(MapItemListElement.MapElement(sampleData)),
+                { },
+                viewModel::triggerDelete,
+                viewModel::triggerDownload
+            )
         }
 
         composeRule.onNode(hasContentDescription(context.getString(R.string.download)))
@@ -70,7 +85,12 @@ class MapListTest {
         val sampleData = idleDownloadMapInfoSample
 
         composeRule.setContent {
-            MapItemList(mapListItems = listOf(MapItemListElement.MapElement(sampleData))) { }
+            MapItemList(
+                mapListItems = listOf(MapItemListElement.MapElement(sampleData)),
+                { },
+                viewModel::triggerDelete,
+                viewModel::triggerDownload
+            )
         }
 
         composeRule.onNode(hasContentDescription(context.getString(R.string.download)))
@@ -90,7 +110,12 @@ class MapListTest {
         val downloadInfo = downloadingMapInfoSample.downloadState as DownloadState.Downloading
 
         composeRule.setContent {
-            MapItemList(mapListItems = listOf(MapItemListElement.MapElement(sampleData))) { }
+            MapItemList(
+                mapListItems = listOf(MapItemListElement.MapElement(sampleData)),
+                { },
+                viewModel::triggerDelete,
+                viewModel::triggerDownload
+            )
         }
 
         composeRule.onNode(hasContentDescription(context.getString(R.string.download)))
@@ -115,7 +140,12 @@ class MapListTest {
         val sampleData = downloadedMapInfoSample
 
         composeRule.setContent {
-            MapItemList(mapListItems = listOf(MapItemListElement.MapElement(sampleData))) { }
+            MapItemList(
+                mapListItems = listOf(MapItemListElement.MapElement(sampleData)),
+                { },
+                viewModel::triggerDelete,
+                viewModel::triggerDownload
+            )
         }
 
         composeRule.onNode(hasContentDescription(context.getString(R.string.download)))

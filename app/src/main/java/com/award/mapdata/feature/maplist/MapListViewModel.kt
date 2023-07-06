@@ -24,12 +24,13 @@ class MapListViewModel @Inject constructor(
 
     //TODO Loading states?
     private val _mapListFlow = MutableStateFlow<List<MapItemListElement>>(listOf())
-    private val mapListFlow: MutableStateFlow<List<MapItemListElement>> = _mapListFlow
+    val mapListFlow: MutableStateFlow<List<MapItemListElement>> = _mapListFlow
 
     // Titles currently hardcoded. Language config changes currently don't update our string res
     // nor do we perform fetches to the data layer to update any text from the server.
     private val webHeaderText = context.getString(R.string.web_map)
     private val mapAreaText = context.getString(R.string.map_area)
+    private val mapKey = context.getString(R.string.page_launch_id)
 
     init {
         populateList()
@@ -51,12 +52,12 @@ class MapListViewModel @Inject constructor(
     private fun populateList() {
         viewModelScope.launch {
             //TODO error handling
-            val mapItems = mapRepository.getTopLevelMap("")
+            val mapItems = mapRepository.getTopLevelMap(mapKey)
             val elementList = mutableListOf(
                 Header(webHeaderText),
                 //where is the top map item?
                 Divider,
-                Header(webHeaderText),
+                Header(mapAreaText),
             )
             mapItems?.forEach {
                 elementList.add(MapItemListElement.MapElement(it))

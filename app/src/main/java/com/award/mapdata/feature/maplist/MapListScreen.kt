@@ -24,6 +24,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,6 +38,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import com.award.mapdata.R
 import com.award.mapdata.data.entity.DownloadState
+import com.award.mapdata.data.entity.MapID
 import com.award.mapdata.data.mock.MapDataPreviewParamProvider
 import com.award.mapdata.data.entity.MapItemListElement
 import com.award.mapdata.data.mock.MapPreviewData
@@ -44,16 +47,27 @@ import com.award.mapdata.data.entity.ViewMapInfo
 import com.award.mapdata.ui.theme.MapDataTheme
 
 @Composable
-fun MapListScreen(openMapDetails: (ViewMapInfo) -> Unit) {
-    //TODO hook up with viewmodel
-    MapItemList(MapPreviewData.dataElements, openMapDetails)
+fun MapListScreen(
+    viewModel: MapListViewModel,
+    openMapDetails: (ViewMapInfo) -> Unit
+) {
+
+    val listState by viewModel.mapListFlow.collectAsState()
+
+    MapItemList(listState,
+        openMapDetails,
+        viewModel::triggerDelete,
+        viewModel::triggerDownload
+    )
 }
 
 @Composable
 fun MapItemList(
     mapListItems: List<MapItemListElement>,
-    openMapDetails: (ViewMapInfo) -> Unit
-) {
+    openMapDetails: (ViewMapInfo) -> Unit,
+    triggerDelete: (MapID) -> Unit,
+    triggerDownload: (MapID) -> Unit,
+    ) {
     LazyColumn() {
         items(mapListItems, contentType = { it.viewType }) {
             when (it) {
@@ -66,8 +80,8 @@ fun MapItemList(
                 is MapItemListElement.MapElement -> {
                     MapRow(
                         mapInfo = it.mapInfo,
-                        requestDelete = {  },
-                        requestDownload = {  },
+                        triggerDelete = triggerDelete,
+                        triggerDownload = triggerDownload,
                         onMapInfoSelected = openMapDetails)
                 }
             }
@@ -82,7 +96,7 @@ fun PreviewSampleColumn(
     sampleMapElements: List<MapItemListElement>
 ) {
     MapDataTheme {
-        MapItemList(sampleMapElements) { }
+        MapItemList(sampleMapElements, { }, { }, { })
     }
 }
 
@@ -137,8 +151,8 @@ fun DividerPreview() {
 @Composable
 fun MapRow(
     mapInfo: ViewMapInfo,
-    requestDelete: (ViewMapInfo) -> Unit,
-    requestDownload: (ViewMapInfo) -> Unit,
+    triggerDelete: (MapID) -> Unit,
+    triggerDownload: (MapID) -> Unit,
     onMapInfoSelected: (ViewMapInfo) -> Unit
 ) {
 
@@ -173,7 +187,7 @@ fun MapRow(
         }
         when (mapInfo.downloadState) {
             is DownloadState.Downloaded -> {
-                SpacedRowIcon(R.drawable.delete, mapInfo, requestDelete, R.string.delete)
+                SpacedRowIcon(R.drawable.delete, mapInfo, triggerDelete, R.string.delete)
             }
 
             is DownloadState.Downloading -> {
@@ -189,7 +203,7 @@ fun MapRow(
             }
 
             is DownloadState.Idle -> {
-                SpacedRowIcon(R.drawable.download, mapInfo, requestDownload, R.string.download)
+                SpacedRowIcon(R.drawable.download, mapInfo, triggerDownload, R.string.download)
             }
             is DownloadState.Unavailable -> {
                 Spacer(modifier = Modifier.size(29.dp))
@@ -199,11 +213,15 @@ fun MapRow(
 }
 
 @Composable
-fun SpacedRowIcon(@DrawableRes iconRes: Int, mapInfo: ViewMapInfo,
-                  clickHandler: (ViewMapInfo) -> Unit, @StringRes description: Int) {
+fun SpacedRowIcon(
+    @DrawableRes iconRes: Int,
+    mapInfo: ViewMapInfo,
+    clickHandler: (MapID) -> Unit,
+    @StringRes description: Int
+) {
     Spacer(modifier = Modifier.size(25.dp))
     Button(
-        onClick = { clickHandler(mapInfo) },
+        onClick = { clickHandler(mapInfo.itemId) },
         colors = ButtonDefaults.buttonColors(Color.Transparent),
         contentPadding = PaddingValues(0.dp)) {
         Image(

@@ -14,7 +14,7 @@ class EsriNetworkedMapDataSource @Inject constructor(
     private val portal = Portal(baseEndpointURL)
 
     override suspend fun getMapData(id: String): List<PreplannedMapArea>? {
-
+        //TODO exception handling for invalid IDs (or malformed portal URI)
         val portalItem = PortalItem(portal, id)
         val offlineMapTask = OfflineMapTask(portalItem)
         val preplannedMapAreasFuture = offlineMapTask.getPreplannedMapAreas()

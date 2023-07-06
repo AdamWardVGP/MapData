@@ -1,4 +1,4 @@
-package com.award.mapdata.data
+package com.award.mapdata.data.entity
 
 sealed class DownloadState {
 
@@ -18,7 +18,27 @@ sealed class DownloadState {
 /**
  * Container for view layer rendering of map elements
  */
-data class ViewMapInfo(val title: String, val description: String, val downloadState: DownloadState)
+data class ViewMapInfo(
+    val itemId: MapID,
+    val imageUri: String?,
+    val title: String,
+    val description: String,
+    val downloadState: DownloadState
+)
+
+/**
+ * Generalized IDs to ensure strong type matching across calls to data layer
+ */
+sealed class MapID {
+    class EsriID(val itemKey: String): MapID()
+}
+
+/**
+ * Allows specific payload to be used with the appropriate maps renderer
+ */
+sealed class RendererPayload {
+    class EsriRenderPayload(): RendererPayload()
+}
 
 sealed class MapItemListElement(val viewType: Int) {
     class Header(val title: String): MapItemListElement(1)

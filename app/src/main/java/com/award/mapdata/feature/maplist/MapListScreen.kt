@@ -35,12 +35,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import com.award.mapdata.R
-import com.award.mapdata.data.DownloadState
-import com.award.mapdata.data.MapDataPreviewParamProvider
-import com.award.mapdata.data.MapItemListElement
-import com.award.mapdata.data.MapPreviewData
-import com.award.mapdata.data.MapPreviewData.unavailableDownloadMapInfoSample
-import com.award.mapdata.data.ViewMapInfo
+import com.award.mapdata.data.entity.DownloadState
+import com.award.mapdata.data.mock.MapDataPreviewParamProvider
+import com.award.mapdata.data.entity.MapItemListElement
+import com.award.mapdata.data.mock.MapPreviewData
+import com.award.mapdata.data.mock.MapPreviewData.unavailableDownloadMapInfoSample
+import com.award.mapdata.data.entity.ViewMapInfo
 import com.award.mapdata.ui.theme.MapDataTheme
 
 @Composable

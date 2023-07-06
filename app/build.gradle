@@ -1,6 +1,8 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+//    id 'kotlin-kapt'
+//    id 'com.google.dagger.hilt.android'
 }
 
 android {
@@ -9,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId "com.award.mapdata"
-        minSdk 24
+        minSdk 26
         targetSdk 33
         versionCode 1
         versionName "1.0"
@@ -20,10 +22,26 @@ android {
         }
     }
 
+    buildFeatures {
+        compose true
+        viewBinding true
+        buildConfig true
+    }
+
+    def localProperties = new Properties()
+    def localPropertiesFile = rootProject.file('local.properties')
+    if (localPropertiesFile.exists()) {
+        localProperties.load(new FileInputStream(localPropertiesFile))
+    }
+
     buildTypes {
+        debug {
+            buildConfigField("String", "API_KEY", "\"${localProperties['esri.api.key']}\"")
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField("String", "API_KEY", "\"${localProperties['esri.api.key']}\"")
         }
     }
     compileOptions {
@@ -33,15 +51,13 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
-    buildFeatures {
-        compose true
-    }
     composeOptions {
         kotlinCompilerExtensionVersion '1.4.8'
     }
     packagingOptions {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
+            excludes += 'META-INF/DEPENDENCIES'
         }
     }
 }
@@ -57,6 +73,11 @@ dependencies {
     implementation 'androidx.compose.ui:ui-graphics'
     implementation 'androidx.compose.ui:ui-tooling-preview'
 
+    implementation 'com.esri:arcgis-maps-kotlin:200.1.0'
+
+//    implementation "com.google.dagger:hilt-android:2.44"
+//    kapt "com.google.dagger:hilt-compiler:2.44"
+
     implementation "androidx.navigation:navigation-compose:2.6.0"
 
     implementation 'androidx.compose.material3:material3'
@@ -68,3 +89,8 @@ dependencies {
     debugImplementation 'androidx.compose.ui:ui-tooling'
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
 }
+
+// Allow references to generated code
+//kapt {
+//    correctErrorTypes true
+//}

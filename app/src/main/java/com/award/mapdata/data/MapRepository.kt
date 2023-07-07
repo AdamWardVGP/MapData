@@ -7,6 +7,7 @@ import com.award.mapdata.data.base.MapDataConverter
 import com.award.mapdata.data.base.MapDataSource
 import com.award.mapdata.data.entity.AreaDownloadStatus
 import com.award.mapdata.data.entity.AreaInfo
+import com.award.mapdata.data.entity.DownloadState
 import com.award.mapdata.data.entity.ViewMapInfo
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -39,7 +40,12 @@ class EsriMapRepository @Inject constructor(
 
     override suspend fun getMapAreas(id: String): List<ViewMapInfo>? {
         return getMapAreaInternal(id)?.map {
-            mapAreaDataConverter.convertToGenericData(it)
+            val downloadState = if(remoteDownloadableDataSource.isAreaDownloaded(it.portalItem.itemId)) {
+                DownloadState.Downloaded
+            } else {
+                DownloadState.Idle
+            }
+            mapAreaDataConverter.convertToGenericData(it, downloadState)
         }
     }
 
@@ -53,6 +59,11 @@ class EsriMapRepository @Inject constructor(
     }
 
     override suspend fun downloadMapArea(parentId: String, childId: String): Flow<AreaDownloadStatus>? {
+
+        if(remoteDownloadableDataSource.isAreaDownloaded(childId)) {
+            return flowOf(AreaDownloadStatus.Completed)
+        }
+
         //TODO this is actually a parent id containing multiple preplanned areas.
         //we need to reference both the parent, and the child, or have a way to access the children
         getMapAreaInternal(parentId)?.let { parentMap ->

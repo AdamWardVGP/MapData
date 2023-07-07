@@ -33,11 +33,11 @@ class EsriNetworkedMapAreaSource @Inject constructor(
         //TODO exception handling for invalid IDs (or malformed portal URI)
         val portalItem = PortalItem(portal, id)
         val offlineMapTask = OfflineMapTask(portalItem)
-
-        //this gives us areas but not their download state. We need to query disk for any cached items
-        // or in-progress jobs
-
         return offlineMapTask.getPreplannedMapAreas().getOrNull()
+    }
+
+    override fun isAreaDownloaded(areaId: String): Boolean {
+        return File(downloadFile.path + File.separator + areaId).exists()
     }
 
     //https://developers.arcgis.com/kotlin/api-reference/arcgis-maps-kotlin/com.arcgismaps.tasks.offlinemaptask/-offline-map-task/index.html#148835997%2FFunctions%2F1086730362

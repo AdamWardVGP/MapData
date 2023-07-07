@@ -8,13 +8,13 @@ import com.award.mapdata.data.entity.ViewMapInfo
 import javax.inject.Inject
 
 class EsriPortalItemConverter @Inject constructor() : MapDataConverter<PortalItem>() {
-    override fun convertToGenericData(mapData: PortalItem): ViewMapInfo {
+    override fun convertToGenericData(mapData: PortalItem, downloadState: DownloadState): ViewMapInfo {
         return ViewMapInfo(
             itemId = EsriID(mapData.itemId),
             imageUri = mapData.thumbnail?.uri,
             title = mapData.title,
             description = mapData.snippet,
-            downloadState = DownloadState.Unavailable
+            downloadState = downloadState
         )
     }
 }

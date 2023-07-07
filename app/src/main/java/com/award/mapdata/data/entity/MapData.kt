@@ -29,15 +29,8 @@ data class ViewMapInfo(
 /**
  * Generalized IDs to ensure strong type matching across calls to data layer
  */
-sealed class MapID {
-    class EsriID(val itemKey: String): MapID()
-}
-
-/**
- * Allows specific payload to be used with the appropriate maps renderer
- */
-sealed class RendererPayload {
-    class EsriRenderPayload(): RendererPayload()
+sealed class MapID(val itemKey: String) {
+    class EsriID(itemKey: String): MapID(itemKey)
 }
 
 sealed class MapItemListElement(val viewType: Int) {

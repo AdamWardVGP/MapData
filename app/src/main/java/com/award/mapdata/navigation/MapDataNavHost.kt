@@ -9,8 +9,7 @@ import androidx.navigation.compose.composable
 import com.award.mapdata.feature.maplist.MapListScreen
 import com.award.mapdata.feature.maplist.MapListViewModel
 import com.award.mapdata.feature.mapview.MapDetailScreen
-import com.award.mapdata.navigation.MapNavDestination.MapDetails
-import com.award.mapdata.navigation.MapNavDestination.MapList
+import com.award.mapdata.feature.mapview.MapDetailViewModel
 
 
 @Composable
@@ -28,13 +27,21 @@ fun MapDataNavHost(
             val viewModel = hiltViewModel<MapListViewModel>()
             MapListScreen(
                 viewModel,
-                openMapDetails = {
-                    navController.navigate(MapDetails.route)
+                openMapDetails = { mapId ->
+                    navController.navigate(
+                        MapDetails.getRouteForId(mapId.itemId.itemKey)
+                    )
                 }
             )
         }
-        composable(route = MapDetails.route) {
-            MapDetailScreen()
+        composable(route = MapDetails.routeWithArgs,
+            arguments =  MapDetails.arguments) { navEntry ->
+            val viewModel = hiltViewModel<MapDetailViewModel>()
+            navEntry.arguments?.getString(MapDetails.argMapID)?.let {
+                MapDetailScreen(
+                    viewModel,
+                    it)
+            } ?: MapDetailScreen(viewModel)
         }
     }
 }

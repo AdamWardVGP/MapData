@@ -9,14 +9,16 @@ import com.award.mapdata.data.entity.MapItemListElement
 import com.award.mapdata.data.entity.MapItemListElement.Divider
 import com.award.mapdata.data.entity.MapItemListElement.Header
 import com.award.mapdata.data.MapRepository
+import com.award.mapdata.data.entity.DownloadState
 import com.award.mapdata.data.entity.MapItemListElement.MapElement
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import java.util.Collections
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,7 +27,6 @@ class MapListViewModel @Inject constructor(
     @ApplicationContext context: Context)
     : ViewModel() {
 
-    //TODO Loading states?
     private val _mapListFlow = MutableStateFlow<List<MapItemListElement>>(listOf())
     val mapListFlow: MutableStateFlow<List<MapItemListElement>> = _mapListFlow
 
@@ -53,27 +54,47 @@ class MapListViewModel @Inject constructor(
      * merge them into the desired ordered list output
      */
     private fun populateList() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             _mapListFlow.value = listOf(MapItemListElement.Loading)
 
-            mapRepository.getTopLevelMap(mapKey)?.let { mapItem ->
-                val elementList = mutableListOf(
-                    Header(webHeaderText),
-                    MapElement(mapItem),
-                    Divider,
-                    MapItemListElement.Loading
-                )
-                _mapListFlow.value = elementList
+            val list: MutableList<MapItemListElement> = getTopLevelMap()
+                ?: //TODO: render some error instead
+                return@launch
 
-                val areas = mapRepository.getMapAreas(mapKey)
-                val updatedList = elementList.subList(0, elementList.size - 1)
-                updatedList.add(Header(mapAreaText))
-                areas?.forEach {
-                    updatedList.add(MapElement(it))
-                }
-                _mapListFlow.value = updatedList
+            //temp update to loading, and remove element after
+            list.add(MapItemListElement.Loading)
+            _mapListFlow.value = list
+
+            var updatedList = list.subList(0, list.size - 2)
+            updatedList = getDownloadableItems(updatedList)
+
+            if(updatedList == null) {
+                //TODO: render some error
+                return@launch
             }
+
+            _mapListFlow.value = updatedList
         }
+    }
+
+    private suspend fun getTopLevelMap(): MutableList<MapItemListElement>? {
+        return mapRepository.getTopLevelMap(mapKey)?.let { mapItem ->
+            mutableListOf(
+                Header(webHeaderText),
+                MapElement(mapItem),
+                Divider
+            )
+        }
+    }
+
+    private suspend fun getDownloadableItems(list: MutableList<MapItemListElement>):
+            MutableList<MapItemListElement> {
+        val areas = mapRepository.getMapAreas(mapKey)
+        list.add(Header(mapAreaText))
+        areas?.forEach {
+            list.add(MapElement(it))
+        }
+        return list
     }
 
     fun triggerDownload(mapID: MapID) {

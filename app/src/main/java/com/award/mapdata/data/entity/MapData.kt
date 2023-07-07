@@ -1,5 +1,7 @@
 package com.award.mapdata.data.entity
 
+import com.arcgismaps.tasks.offlinemaptask.PreplannedMapArea
+
 sealed class DownloadState {
 
     //Indicates the element cannot support downloading
@@ -38,4 +40,20 @@ sealed class MapItemListElement(val viewType: Int) {
     class MapElement(val mapInfo: ViewMapInfo): MapItemListElement(2)
     object Divider: MapItemListElement(3)
     object Loading: MapItemListElement(4)
+}
+
+
+sealed class AreaInfo {
+    class EsriMapArea(val preplannedArea: PreplannedMapArea) : AreaInfo()
+}
+
+sealed class AreaDownloadStatus {
+
+    object Idle : AreaDownloadStatus()
+    class InProgress(val progress: Int) : AreaDownloadStatus()
+
+    //we should likely pass back the exception or some context about why the abort occurred
+    object Aborted : AreaDownloadStatus()
+
+    object Completed : AreaDownloadStatus()
 }

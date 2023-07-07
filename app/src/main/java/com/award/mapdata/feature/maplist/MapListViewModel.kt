@@ -1,6 +1,7 @@
 package com.award.mapdata.feature.maplist
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.award.mapdata.R
@@ -9,16 +10,18 @@ import com.award.mapdata.data.entity.MapItemListElement
 import com.award.mapdata.data.entity.MapItemListElement.Divider
 import com.award.mapdata.data.entity.MapItemListElement.Header
 import com.award.mapdata.data.MapRepository
+import com.award.mapdata.data.entity.AreaDownloadStatus
 import com.award.mapdata.data.entity.DownloadState
 import com.award.mapdata.data.entity.MapItemListElement.MapElement
+import com.award.mapdata.data.entity.ViewMapInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import java.util.Collections
 import javax.inject.Inject
 
 @HiltViewModel
@@ -97,8 +100,60 @@ class MapListViewModel @Inject constructor(
         return list
     }
 
-    fun triggerDownload(mapID: MapID) {
+    val mutex = Mutex()
 
+    fun triggerDownload(mapID: MapID) {
+        //TODO inject dispatcher
+        viewModelScope.launch(Dispatchers.IO) {
+            mapRepository.downloadMapArea(mapKey, mapID.itemKey)?.collectLatest { downloadState ->
+                mutex.withLock {
+                    val list = _mapListFlow.value
+                    list.firstOrNull() {
+                        (it as? MapElement)?.mapInfo?.itemId?.itemKey == mapID.itemKey
+                    }?.let { item ->
+                        if(item is MapElement) {
+                            val newItem = MapElement(
+                                ViewMapInfo(
+                                    itemId = item.mapInfo.itemId,
+                                    imageUri = item.mapInfo.imageUri,
+                                    title = item.mapInfo.title,
+                                    description = item.mapInfo.description,
+                                    downloadState = when(downloadState) {
+                                        is AreaDownloadStatus.Aborted ->  {
+                                            DownloadState.Idle
+                                        }
+                                        is AreaDownloadStatus.Completed ->  {
+                                            DownloadState.Downloaded
+                                        }
+                                        is AreaDownloadStatus.Idle -> {
+                                            DownloadState.Idle
+                                        }
+                                        is AreaDownloadStatus.InProgress -> {
+                                            Log.v("AdamTest", "download state is now ${downloadState.progress}")
+                                            DownloadState.Downloading((downloadState.progress.toFloat() / 100f))
+                                        }
+                                    }
+                                )
+                            )
+
+
+
+                            //TODO ideally we shouldn't update the whole list.  We just want to insert a new item
+                            //and this does a bunch of list copies.
+                            val updatedList = list.map {
+                                if((it as? MapElement)?.mapInfo?.itemId?.itemKey == mapID.itemKey){
+                                    newItem
+                                } else {
+                                    it
+                                }
+                            }
+
+                            _mapListFlow.value = updatedList
+                        }
+                    }
+                }
+            }
+        }
     }
 
     fun triggerDelete(mapID: MapID) {

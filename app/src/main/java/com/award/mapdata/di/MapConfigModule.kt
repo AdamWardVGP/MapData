@@ -10,6 +10,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import java.io.File
 import javax.inject.Named
 
 @Module
@@ -26,6 +27,12 @@ class MapConfigModule {
     @Named("GIS_ENDPOINT_BASE")
     fun provideGisUriBase(@ApplicationContext application: Context): String {
         return application.getString(R.string.esri_base_uri)
+    }
+
+    @Provides
+    @Named("DOWNLOAD_FILE")
+    fun provideOfflineMapFilePath(@ApplicationContext application: Context): File {
+        return File(application.externalCacheDir?.path + application.getString(R.string.offline_map_dir))
     }
 
 }

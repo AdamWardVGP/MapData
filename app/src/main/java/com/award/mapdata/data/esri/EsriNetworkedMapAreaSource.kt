@@ -33,6 +33,10 @@ class EsriNetworkedMapAreaSource @Inject constructor(
         //TODO exception handling for invalid IDs (or malformed portal URI)
         val portalItem = PortalItem(portal, id)
         val offlineMapTask = OfflineMapTask(portalItem)
+
+        //this gives us areas but not their download state. We need to query disk for any cached items
+        // or in-progress jobs
+
         return offlineMapTask.getPreplannedMapAreas().getOrNull()
     }
 
@@ -48,11 +52,13 @@ class EsriNetworkedMapAreaSource @Inject constructor(
         }
 
         //TODO: This all assumes the item isn't already downloaded
-        // ALso unsure of the download state in case of an abort/failure
+        // Also unsure of the download state in case of an abort/failure
         // we should check for existing items, their validity, and add cleanup
 
         (area as? AreaInfo.EsriMapArea)?.let {
-            val offlineMapTask = OfflineMapTask(area.preplannedArea.portalItem)
+            val offlineMapTask = OfflineMapTask(
+                PortalItem(portal, area.parentPortalItem)
+            )
             val params = DownloadPreplannedOfflineMapParameters(preplannedMapArea = area.preplannedArea)
             params.updateMode = PreplannedUpdateMode.NoUpdates
 

@@ -57,7 +57,9 @@ class EsriMapRepository @Inject constructor(
         //we need to reference both the parent, and the child, or have a way to access the children
         getMapAreaInternal(parentId)?.let { parentMap ->
             parentMap.firstOrNull() { it.portalItem.itemId == childId }?.let { area ->
-                return remoteDownloadableDataSource.downloadPreplannedArea(AreaInfo.EsriMapArea(area))
+                return remoteDownloadableDataSource.downloadPreplannedArea(
+                    AreaInfo.EsriMapArea(parentId, area)
+                )
             } ?: return flowOf(AreaDownloadStatus.Aborted)
         } ?: return flowOf(AreaDownloadStatus.Aborted)
     }

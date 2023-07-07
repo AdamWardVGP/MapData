@@ -44,7 +44,7 @@ sealed class MapItemListElement(val viewType: Int) {
 
 
 sealed class AreaInfo {
-    class EsriMapArea(val preplannedArea: PreplannedMapArea) : AreaInfo()
+    class EsriMapArea(val parentPortalItem: String, val preplannedArea: PreplannedMapArea) : AreaInfo()
 }
 
 sealed class AreaDownloadStatus {

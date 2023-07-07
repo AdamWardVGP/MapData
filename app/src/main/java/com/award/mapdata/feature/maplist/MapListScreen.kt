@@ -189,6 +189,7 @@ fun MapRow(
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            //TODO This should be wrapped so that our code isn't dependant on coil
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(mapInfo.imageUri)

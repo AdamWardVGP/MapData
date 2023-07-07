@@ -1,22 +1,21 @@
-package com.award.mapdata.data
+package com.award.mapdata.data.esri
 
 import com.arcgismaps.LoadStatus
-import com.arcgismaps.mapping.PortalItem
+import com.arcgismaps.tasks.offlinemaptask.PreplannedMapArea
+import com.award.mapdata.data.base.MapDataConverter
 import com.award.mapdata.data.entity.DownloadState
 import com.award.mapdata.data.entity.MapID.*
 import com.award.mapdata.data.entity.ViewMapInfo
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
-class EsriMapDataConverter @Inject constructor() : MapDataConverter<PortalItem>() {
-    override fun convertToGenericData(mapData: PortalItem, overrideDownloadState: DownloadState?): ViewMapInfo {
+class EsriPreplannedAreaConverter @Inject constructor() : MapDataConverter<PreplannedMapArea>() {
+    override fun convertToGenericData(mapData: PreplannedMapArea): ViewMapInfo {
         return ViewMapInfo(
-            itemId = EsriID(mapData.itemId),
-            imageUri = mapData.thumbnail?.uri,
-            title = mapData.title,
-            description = mapData.snippet,
-            downloadState = overrideDownloadState ?: when(mapData.loadStatus.value) {
+            itemId = EsriID(mapData.portalItem.itemId),
+            imageUri = mapData.portalItem.thumbnail?.uri,
+            title = mapData.portalItem.title,
+            description = mapData.portalItem.snippet,
+            downloadState = when(mapData.loadStatus.value) {
                 is LoadStatus.NotLoaded -> DownloadState.Idle
                 is LoadStatus.FailedToLoad -> DownloadState.Idle
                 is LoadStatus.Loading -> {

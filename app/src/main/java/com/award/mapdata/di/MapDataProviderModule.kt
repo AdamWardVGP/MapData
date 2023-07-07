@@ -1,12 +1,16 @@
 package com.award.mapdata.di
 
 import com.arcgismaps.mapping.PortalItem
-import com.award.mapdata.data.EsriMapDataConverter
+import com.arcgismaps.tasks.offlinemaptask.PreplannedMapArea
+import com.award.mapdata.data.esri.EsriPortalItemConverter
 import com.award.mapdata.data.EsriMapRepository
-import com.award.mapdata.data.MapDataSource
+import com.award.mapdata.data.base.MapDataSource
 import com.award.mapdata.data.MapRepository
-import com.award.mapdata.data.EsriNetworkedMapDataSource
-import com.award.mapdata.data.MapDataConverter
+import com.award.mapdata.data.base.DownloadableMapAreaSource
+import com.award.mapdata.data.esri.EsriNetworkedMapDataSource
+import com.award.mapdata.data.base.MapDataConverter
+import com.award.mapdata.data.esri.EsriNetworkedMapAreaSource
+import com.award.mapdata.data.esri.EsriPreplannedAreaConverter
 
 import dagger.Binds
 import dagger.Module
@@ -24,6 +28,12 @@ abstract class MapDataProviderModule {
     abstract fun bindEsriMapDataSource(impl: EsriNetworkedMapDataSource): MapDataSource<PortalItem>
 
     @Binds
-    abstract fun bindEsriConverter(impl: EsriMapDataConverter): MapDataConverter<PortalItem>
+    abstract fun bindEsriConverter(impl: EsriPortalItemConverter): MapDataConverter<PortalItem>
+
+    @Binds
+    abstract fun bindEsriMapAreaSource(impl: EsriNetworkedMapAreaSource): DownloadableMapAreaSource<PreplannedMapArea>
+
+    @Binds
+    abstract fun bindEsriAreaConverter(impl: EsriPreplannedAreaConverter): MapDataConverter<PreplannedMapArea>
 
 }

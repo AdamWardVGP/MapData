@@ -1,7 +1,10 @@
 package com.award.mapdata.data
 
 import com.arcgismaps.mapping.PortalItem
-import com.award.mapdata.data.entity.DownloadState
+import com.arcgismaps.tasks.offlinemaptask.PreplannedMapArea
+import com.award.mapdata.data.base.DownloadableMapAreaSource
+import com.award.mapdata.data.base.MapDataConverter
+import com.award.mapdata.data.base.MapDataSource
 import com.award.mapdata.data.entity.ViewMapInfo
 import javax.inject.Inject
 
@@ -12,18 +15,22 @@ abstract class MapRepository {
 }
 
 class EsriMapRepository @Inject constructor(
-    private val remoteDataSource: MapDataSource<PortalItem>,
-    private val mapDataDomainConverter: MapDataConverter<PortalItem>): MapRepository() {
+    private val remoteMapDataSource: MapDataSource<PortalItem>,
+    private val mapDataDomainConverter: MapDataConverter<PortalItem>,
+    private val remoteDownloadableDataSource: DownloadableMapAreaSource<PreplannedMapArea>,
+    private val mapAreaDataConverter: MapDataConverter<PreplannedMapArea>
+): MapRepository() {
 
     override suspend fun getTopLevelMap(id: String): ViewMapInfo? {
-        //TODO support offline first storage here as well
-        return remoteDataSource.getMapData(id)
-            ?.let { mapDataDomainConverter.convertToGenericData(it, DownloadState.Unavailable) }
+        //TODO support offline first storage here
+        return remoteMapDataSource.getMapData(id)
+            ?.let { mapDataDomainConverter.convertToGenericData(it) }
     }
 
     override suspend fun getMapAreas(id: String): List<ViewMapInfo>? {
-        return remoteDataSource.getMapAreas(id)?.map {
-            mapDataDomainConverter.convertToGenericData(it)
+        //TODO support offline first storage here as well
+        return remoteDownloadableDataSource.getMapAreas(id)?.map {
+            mapAreaDataConverter.convertToGenericData(it)
         }
     }
 }

@@ -111,9 +111,9 @@ fun PreviewSampleColumn(
 fun HeaderRow(title: String) {
     Text(
         text = title,
-        style = MaterialTheme.typography.headlineMedium.copy(Color(0xFF212121)),
+        style = MaterialTheme.typography.headlineSmall.copy(Color(0xFF212121)),
         modifier = Modifier
-            .padding(27.dp, 22.dp)
+            .padding(20.25.dp, 16.5.dp)
             .fillMaxWidth()
             .wrapContentHeight()
     )
@@ -130,7 +130,7 @@ fun HeaderPreview() {
 @Composable
 fun Divider() {
     Box(modifier = Modifier
-        .padding(horizontal = 5.dp)
+        .padding(horizontal = 3.dp)
         .height(1.dp)
         .fillMaxWidth()
         .background(Color(0xFFE0E0E0))
@@ -143,12 +143,12 @@ fun Divider() {
 fun LoadingStatus() {
     Surface {
         Box(modifier = Modifier
-            .height(64.dp)
+            .height(48.dp)
             .fillMaxWidth()
         ) {
             CircularProgressIndicator(
                 color = Color(0xFF5114DB),
-                strokeWidth = 5.dp,
+                strokeWidth = 3.dp,
                 modifier = Modifier
                     .testTag("progress_indicator")
                     .align(Alignment.Center)
@@ -163,7 +163,7 @@ fun DividerPreview() {
     MapDataTheme {
         Row(
             modifier = Modifier
-                .height(10.dp)
+                .height(7.dp)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -183,8 +183,8 @@ fun MapRow(
 
         Row(
             modifier = Modifier
-                .padding(horizontal = 26.dp)
-                .height(109.dp)
+                .padding(horizontal = 19.5.dp)
+                .height(81.75.dp)
                 .wrapContentHeight()
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -196,16 +196,16 @@ fun MapRow(
                     .build(),
                 contentDescription = null,
                 modifier = Modifier
-                    .size(131.dp, 88.dp)
+                    .size(98.25.dp, 66.dp)
                     .background(Color(0xFFC3DBF9))
             )
 
-            Spacer(modifier = Modifier.size(11.dp))
+            Spacer(modifier = Modifier.size(7.5.dp))
             Column(modifier = Modifier.weight(1f)) {
 
                 Text(
                     text = mapInfo.title,
-                    style = MaterialTheme.typography.headlineMedium.copy(Color(0xFF212121)),
+                    style = MaterialTheme.typography.headlineSmall.copy(Color(0xFF212121)),
                     maxLines = 1
                 )
 
@@ -222,15 +222,15 @@ fun MapRow(
                 }
 
                 is DownloadState.Downloading -> {
-                    Spacer(modifier = Modifier.size(26.dp))
+                    Spacer(modifier = Modifier.size(19.5.dp))
                     //download is in progress, update progress indicator
                     CircularProgressIndicator(
                         progress = mapInfo.downloadState.progressPercentage,
                         color = Color(0xFF5114DB),
-                        strokeWidth = 5.dp,
+                        strokeWidth = 3.dp,
                         modifier = Modifier.testTag("progress_indicator")
                     )
-                    Spacer(modifier = Modifier.size(23.dp))
+                    Spacer(modifier = Modifier.size(17.25.dp))
                 }
 
                 is DownloadState.Idle -> {
@@ -238,7 +238,7 @@ fun MapRow(
                 }
 
                 is DownloadState.Unavailable -> {
-                    Spacer(modifier = Modifier.size(29.dp))
+                    Spacer(modifier = Modifier.size(21.75.dp))
                 }
             }
         }

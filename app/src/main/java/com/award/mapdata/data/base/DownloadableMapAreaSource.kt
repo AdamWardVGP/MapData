@@ -10,4 +10,6 @@ abstract class DownloadableMapAreaSource<T> {
     abstract fun isAreaDownloaded(areaId: String): Boolean
 
     abstract suspend fun downloadPreplannedArea(area: AreaInfo): Flow<AreaDownloadStatus>
+
+    abstract fun deletePreplannedArea(id: String): Boolean
 }

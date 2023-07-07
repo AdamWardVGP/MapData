@@ -40,6 +40,14 @@ class EsriNetworkedMapAreaSource @Inject constructor(
         return File(downloadFile.path + File.separator + areaId).exists()
     }
 
+    override fun deletePreplannedArea(id: String): Boolean {
+        val file = File(downloadFile.path + File.separator + id)
+        if(file.exists()) {
+            return file.deleteRecursively()
+        }
+        return false
+    }
+
     //https://developers.arcgis.com/kotlin/api-reference/arcgis-maps-kotlin/com.arcgismaps.tasks.offlinemaptask/-offline-map-task/index.html#148835997%2FFunctions%2F1086730362
     override suspend fun downloadPreplannedArea(area: AreaInfo): Flow<AreaDownloadStatus> {
 

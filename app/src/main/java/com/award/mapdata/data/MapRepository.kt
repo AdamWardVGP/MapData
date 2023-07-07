@@ -19,6 +19,8 @@ abstract class MapRepository {
     abstract suspend fun getMapAreas(id: String): List<ViewMapInfo>?
 
     abstract suspend fun downloadMapArea(parentId: String, childId: String): Flow<AreaDownloadStatus>?
+
+    abstract fun deleteDownloadedMapArea(id: String): Boolean
 }
 
 class EsriMapRepository @Inject constructor(
@@ -56,6 +58,10 @@ class EsriMapRepository @Inject constructor(
         } else {
             remoteDownloadableDataSource.getMapAreas(id)
         }
+    }
+
+    override fun deleteDownloadedMapArea(id: String): Boolean {
+        return remoteDownloadableDataSource.deletePreplannedArea(id)
     }
 
     override suspend fun downloadMapArea(parentId: String, childId: String): Flow<AreaDownloadStatus>? {

@@ -39,6 +39,9 @@ class MapListViewModel @Inject constructor(
     private val mapAreaText = context.getString(R.string.map_area)
     private val mapKey = context.getString(R.string.page_launch_id)
 
+    //Locking mechanism to prevent race condition access modifying multiple downloads in the mapList
+    private val mutex = Mutex()
+
     init {
         populateList()
     }
@@ -100,63 +103,66 @@ class MapListViewModel @Inject constructor(
         return list
     }
 
-    val mutex = Mutex()
-
     fun triggerDownload(mapID: MapID) {
         //TODO inject dispatcher
         viewModelScope.launch(Dispatchers.IO) {
             mapRepository.downloadMapArea(mapKey, mapID.itemKey)?.collectLatest { downloadState ->
                 mutex.withLock {
                     val list = _mapListFlow.value
-                    list.firstOrNull() {
-                        (it as? MapElement)?.mapInfo?.itemId?.itemKey == mapID.itemKey
-                    }?.let { item ->
-                        if(item is MapElement) {
-                            val newItem = MapElement(
-                                ViewMapInfo(
-                                    itemId = item.mapInfo.itemId,
-                                    imageUri = item.mapInfo.imageUri,
-                                    title = item.mapInfo.title,
-                                    description = item.mapInfo.description,
-                                    downloadState = when(downloadState) {
-                                        is AreaDownloadStatus.Aborted ->  {
-                                            DownloadState.Idle
-                                        }
-                                        is AreaDownloadStatus.Completed ->  {
-                                            DownloadState.Downloaded
-                                        }
-                                        is AreaDownloadStatus.Idle -> {
-                                            DownloadState.Idle
-                                        }
-                                        is AreaDownloadStatus.InProgress -> {
-                                            Log.v("AdamTest", "download state is now ${downloadState.progress}")
-                                            DownloadState.Downloading((downloadState.progress.toFloat() / 100f))
-                                        }
-                                    }
-                                )
-                            )
-
-
-
-                            //TODO ideally we shouldn't update the whole list.  We just want to insert a new item
-                            //and this does a bunch of list copies.
-                            val updatedList = list.map {
-                                if((it as? MapElement)?.mapInfo?.itemId?.itemKey == mapID.itemKey){
-                                    newItem
-                                } else {
-                                    it
+                    val updatedList = list.map {
+                        if((it is MapElement) && it.mapInfo.itemId.itemKey == mapID.itemKey) {
+                            val newDownloadState = when(downloadState) {
+                                is AreaDownloadStatus.Aborted ->  {
+                                    DownloadState.Idle
+                                }
+                                is AreaDownloadStatus.Completed ->  {
+                                    DownloadState.Downloaded
+                                }
+                                is AreaDownloadStatus.Idle -> {
+                                    DownloadState.Idle
+                                }
+                                is AreaDownloadStatus.InProgress -> {
+                                    DownloadState.Downloading((downloadState.progress.toFloat() / 100f))
                                 }
                             }
-
-                            _mapListFlow.value = updatedList
+                            MapElement(updateViewMapInfo(it.mapInfo, newDownloadState))
+                        } else {
+                            it
                         }
                     }
+                    _mapListFlow.value = updatedList
                 }
             }
         }
     }
 
     fun triggerDelete(mapID: MapID) {
-
+        viewModelScope.launch(Dispatchers.IO) {
+            if(mapRepository.deleteDownloadedMapArea(mapID.itemKey)) {
+                //deletion passed update models
+                mutex.withLock {
+                    val list = _mapListFlow.value.map {
+                        if((it is MapElement) && it.mapInfo.itemId.itemKey == mapID.itemKey) {
+                            MapElement(updateViewMapInfo(it.mapInfo, DownloadState.Idle))
+                        } else {
+                            it
+                        }
+                    }
+                    _mapListFlow.value = list
+                }
+            } else {
+                //TODO throw some error
+            }
+        }
     }
+}
+
+fun updateViewMapInfo(mapInfo: ViewMapInfo, downloadState: DownloadState): ViewMapInfo {
+    return ViewMapInfo(
+        itemId = mapInfo.itemId,
+        imageUri = mapInfo.imageUri,
+        title = mapInfo.title,
+        description = mapInfo.description,
+        downloadState = downloadState
+    )
 }

@@ -1,6 +1,6 @@
 package com.award.mapdata.di
 
-import com.arcgismaps.tasks.offlinemaptask.PreplannedMapArea
+import com.arcgismaps.mapping.PortalItem
 import com.award.mapdata.data.EsriMapDataConverter
 import com.award.mapdata.data.EsriMapRepository
 import com.award.mapdata.data.MapDataSource
@@ -21,9 +21,9 @@ abstract class MapDataProviderModule {
     abstract fun bindDependency(impl: EsriMapRepository): MapRepository
 
     @Binds
-    abstract fun bindEsriMapDataSource(impl: EsriNetworkedMapDataSource): MapDataSource<PreplannedMapArea>
+    abstract fun bindEsriMapDataSource(impl: EsriNetworkedMapDataSource): MapDataSource<PortalItem>
 
     @Binds
-    abstract fun bindEsriConverter(impl: EsriMapDataConverter): MapDataConverter<PreplannedMapArea>
+    abstract fun bindEsriConverter(impl: EsriMapDataConverter): MapDataConverter<PortalItem>
 
 }

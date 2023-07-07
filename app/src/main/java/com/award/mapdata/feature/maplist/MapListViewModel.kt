@@ -3,15 +3,18 @@ package com.award.mapdata.feature.maplist
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.award.mapdata.MapDataApplication
 import com.award.mapdata.R
 import com.award.mapdata.data.entity.MapID
 import com.award.mapdata.data.entity.MapItemListElement
 import com.award.mapdata.data.entity.MapItemListElement.Divider
 import com.award.mapdata.data.entity.MapItemListElement.Header
 import com.award.mapdata.data.MapRepository
+import com.award.mapdata.data.entity.MapItemListElement.MapElement
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -51,18 +54,25 @@ class MapListViewModel @Inject constructor(
      */
     private fun populateList() {
         viewModelScope.launch {
-            //TODO error handling
-            val mapItems = mapRepository.getTopLevelMap(mapKey)
-            val elementList = mutableListOf(
-                Header(webHeaderText),
-                //where is the top map item?
-                Divider,
-                Header(mapAreaText),
-            )
-            mapItems?.forEach {
-                elementList.add(MapItemListElement.MapElement(it))
+            _mapListFlow.value = listOf(MapItemListElement.Loading)
+
+            mapRepository.getTopLevelMap(mapKey)?.let { mapItem ->
+                val elementList = mutableListOf(
+                    Header(webHeaderText),
+                    MapElement(mapItem),
+                    Divider,
+                    MapItemListElement.Loading
+                )
+                _mapListFlow.value = elementList
+
+                val areas = mapRepository.getMapAreas(mapKey)
+                val updatedList = elementList.subList(0, elementList.size - 1)
+                updatedList.add(Header(mapAreaText))
+                areas?.forEach {
+                    updatedList.add(MapElement(it))
+                }
+                _mapListFlow.value = updatedList
             }
-            _mapListFlow.value = elementList
         }
     }
 

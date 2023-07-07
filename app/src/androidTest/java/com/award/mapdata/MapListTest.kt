@@ -33,8 +33,8 @@ class MapListTest {
             MapItemList(
                 mapListItems = listOf(MapItemListElement.Header(testTitle)),
                 { },
-                viewModel::triggerDelete,
-                viewModel::triggerDownload
+                { },
+                { }
             )
         }
 
@@ -47,8 +47,8 @@ class MapListTest {
             MapItemList(
                 mapListItems = listOf(MapItemListElement.Divider),
                 { },
-                viewModel::triggerDelete,
-                viewModel::triggerDownload
+                { },
+                { }
             )
         }
 
@@ -64,8 +64,8 @@ class MapListTest {
             MapItemList(
                 mapListItems = listOf(MapItemListElement.MapElement(sampleData)),
                 { },
-                viewModel::triggerDelete,
-                viewModel::triggerDownload
+                { },
+                { }
             )
         }
 
@@ -88,8 +88,8 @@ class MapListTest {
             MapItemList(
                 mapListItems = listOf(MapItemListElement.MapElement(sampleData)),
                 { },
-                viewModel::triggerDelete,
-                viewModel::triggerDownload
+                { },
+                { }
             )
         }
 
@@ -113,8 +113,8 @@ class MapListTest {
             MapItemList(
                 mapListItems = listOf(MapItemListElement.MapElement(sampleData)),
                 { },
-                viewModel::triggerDelete,
-                viewModel::triggerDownload
+                { },
+                { }
             )
         }
 
@@ -143,8 +143,8 @@ class MapListTest {
             MapItemList(
                 mapListItems = listOf(MapItemListElement.MapElement(sampleData)),
                 { },
-                viewModel::triggerDelete,
-                viewModel::triggerDownload
+                { },
+                { }
             )
         }
 

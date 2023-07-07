@@ -29,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -36,12 +37,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.award.mapdata.R
 import com.award.mapdata.data.entity.DownloadState
 import com.award.mapdata.data.entity.MapID
 import com.award.mapdata.data.mock.MapDataPreviewParamProvider
 import com.award.mapdata.data.entity.MapItemListElement
-import com.award.mapdata.data.mock.MapPreviewData
 import com.award.mapdata.data.mock.MapPreviewData.unavailableDownloadMapInfoSample
 import com.award.mapdata.data.entity.ViewMapInfo
 import com.award.mapdata.ui.theme.MapDataTheme
@@ -83,6 +85,9 @@ fun MapItemList(
                         triggerDelete = triggerDelete,
                         triggerDownload = triggerDownload,
                         onMapInfoSelected = openMapDetails)
+                }
+                MapItemListElement.Loading -> {
+                    LoadingStatus()
                 }
             }
         }
@@ -133,6 +138,25 @@ fun Divider() {
     )
 }
 
+@Composable
+@Preview
+fun LoadingStatus() {
+    Surface {
+        Box(modifier = Modifier
+            .height(64.dp)
+            .fillMaxWidth()
+        ) {
+            CircularProgressIndicator(
+                color = Color(0xFF5114DB),
+                strokeWidth = 5.dp,
+                modifier = Modifier
+                    .testTag("progress_indicator")
+                    .align(Alignment.Center)
+            )
+        }
+    }
+}
+
 @Preview(showBackground = true, backgroundColor = 0xFFFFFFFF, widthDp = 540)
 @Composable
 fun DividerPreview() {
@@ -155,58 +179,67 @@ fun MapRow(
     triggerDownload: (MapID) -> Unit,
     onMapInfoSelected: (ViewMapInfo) -> Unit
 ) {
+    Box(Modifier.clickable { onMapInfoSelected(mapInfo) }) {
 
-    Row(
-        modifier = Modifier
-            .padding(26.dp, 10.dp)
-            .wrapContentHeight()
-            .fillMaxWidth()
-            .clickable { onMapInfoSelected(mapInfo) },
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
+        Row(
             modifier = Modifier
-                .size(131.dp, 88.dp)
-                .background(Color(0xFFC3DBF9))
-        )
-        Spacer(modifier = Modifier.size(11.dp))
-        Column(modifier = Modifier.weight(1f)) {
-
-            Text(
-                text = mapInfo.title,
-                style = MaterialTheme.typography.headlineMedium.copy(Color(0xFF212121)),
-                maxLines = 1
+                .padding(horizontal = 26.dp)
+                .height(109.dp)
+                .wrapContentHeight()
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(mapInfo.imageUri)
+                    .crossfade(500)
+                    .build(),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(131.dp, 88.dp)
+                    .background(Color(0xFFC3DBF9))
             )
 
-            Text(
-                text = mapInfo.description,
-                style = MaterialTheme.typography.bodyMedium.copy(Color(0xFF212121)),
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-        when (mapInfo.downloadState) {
-            is DownloadState.Downloaded -> {
-                SpacedRowIcon(R.drawable.delete, mapInfo, triggerDelete, R.string.delete)
-            }
+            Spacer(modifier = Modifier.size(11.dp))
+            Column(modifier = Modifier.weight(1f)) {
 
-            is DownloadState.Downloading -> {
-                Spacer(modifier = Modifier.size(26.dp))
-                //download is in progress, update progress indicator
-                CircularProgressIndicator(
-                    progress = mapInfo.downloadState.progressPercentage,
-                    color = Color(0xFF5114DB),
-                    strokeWidth = 5.dp,
-                    modifier = Modifier.testTag("progress_indicator")
+                Text(
+                    text = mapInfo.title,
+                    style = MaterialTheme.typography.headlineMedium.copy(Color(0xFF212121)),
+                    maxLines = 1
                 )
-                Spacer(modifier = Modifier.size(23.dp))
-            }
 
-            is DownloadState.Idle -> {
-                SpacedRowIcon(R.drawable.download, mapInfo, triggerDownload, R.string.download)
+                Text(
+                    text = mapInfo.description,
+                    style = MaterialTheme.typography.bodyMedium.copy(Color(0xFF212121)),
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
-            is DownloadState.Unavailable -> {
-                Spacer(modifier = Modifier.size(29.dp))
+            when (mapInfo.downloadState) {
+                is DownloadState.Downloaded -> {
+                    SpacedRowIcon(R.drawable.delete, mapInfo, triggerDelete, R.string.delete)
+                }
+
+                is DownloadState.Downloading -> {
+                    Spacer(modifier = Modifier.size(26.dp))
+                    //download is in progress, update progress indicator
+                    CircularProgressIndicator(
+                        progress = mapInfo.downloadState.progressPercentage,
+                        color = Color(0xFF5114DB),
+                        strokeWidth = 5.dp,
+                        modifier = Modifier.testTag("progress_indicator")
+                    )
+                    Spacer(modifier = Modifier.size(23.dp))
+                }
+
+                is DownloadState.Idle -> {
+                    SpacedRowIcon(R.drawable.download, mapInfo, triggerDownload, R.string.download)
+                }
+
+                is DownloadState.Unavailable -> {
+                    Spacer(modifier = Modifier.size(29.dp))
+                }
             }
         }
     }

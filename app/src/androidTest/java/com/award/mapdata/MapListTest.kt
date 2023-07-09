@@ -8,7 +8,7 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.platform.app.InstrumentationRegistry
 import com.award.mapdata.data.entity.DownloadState
-import com.award.mapdata.data.entity.MapItemListElement
+import com.award.mapdata.feature.maplist.MapItemListElement
 import com.award.mapdata.data.mock.MapPreviewData.downloadedMapInfoSample
 import com.award.mapdata.data.mock.MapPreviewData.downloadingMapInfoSample
 import com.award.mapdata.data.mock.MapPreviewData.idleDownloadMapInfoSample

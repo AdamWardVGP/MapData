@@ -10,11 +10,10 @@ import com.arcgismaps.tasks.offlinemaptask.DownloadPreplannedOfflineMapParameter
 import com.arcgismaps.tasks.offlinemaptask.OfflineMapTask
 import com.arcgismaps.tasks.offlinemaptask.PreplannedMapArea
 import com.arcgismaps.tasks.offlinemaptask.PreplannedUpdateMode
-import com.award.mapdata.data.MapType
-import com.award.mapdata.data.RenderableResult
 import com.award.mapdata.data.base.DownloadableMapAreaSource
 import com.award.mapdata.data.entity.AreaDownloadStatus
 import com.award.mapdata.data.entity.AreaInfo
+import com.award.mapdata.data.entity.RepositoryResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
@@ -25,7 +24,7 @@ import javax.inject.Named
 class EsriNetworkedMapAreaSource @Inject constructor(
     @Named("GIS_ENDPOINT_BASE") baseEndpointURL: String,
     @Named("DOWNLOAD_FILE") val downloadFile: File
-) : DownloadableMapAreaSource<PreplannedMapArea>() {
+) : DownloadableMapAreaSource<PreplannedMapArea, ArcGISMap>() {
 
     companion object {
         const val LOG_TAG = "EsriMapAreaDataSource";
@@ -33,11 +32,15 @@ class EsriNetworkedMapAreaSource @Inject constructor(
 
     private val portal = Portal(baseEndpointURL)
 
-    override suspend fun getMapAreas(id: String): List<PreplannedMapArea>? {
-        //TODO exception handling for invalid IDs (or malformed portal URI)
-        val portalItem = PortalItem(portal, id)
-        val offlineMapTask = OfflineMapTask(portalItem)
-        return offlineMapTask.getPreplannedMapAreas().getOrNull()
+    override suspend fun getMapAreas(id: String): RepositoryResult<List<PreplannedMapArea>> {
+        return try {
+            val portalItem = PortalItem(portal, id)
+            val offlineMapTask = OfflineMapTask(portalItem)
+            val result = offlineMapTask.getPreplannedMapAreas().getOrThrow()
+            RepositoryResult.Success(result)
+        } catch (ex: Exception) {
+            RepositoryResult.Failure(ex, "Failed to get Map Area")
+        }
     }
 
     override fun isAreaDownloaded(areaId: String): Boolean {
@@ -46,7 +49,7 @@ class EsriNetworkedMapAreaSource @Inject constructor(
 
     override fun deletePreplannedArea(id: String): Boolean {
         val file = File(downloadFile.path + File.separator + id)
-        if(file.exists()) {
+        if (file.exists()) {
             return file.deleteRecursively()
         }
         return false
@@ -75,33 +78,41 @@ class EsriNetworkedMapAreaSource @Inject constructor(
                 PortalItem(portal, area.parentPortalItem)
             )
 
-            val params = DownloadPreplannedOfflineMapParameters(preplannedMapArea = area.preplannedArea)
+            val params =
+                DownloadPreplannedOfflineMapParameters(preplannedMapArea = area.preplannedArea)
             params.updateMode = PreplannedUpdateMode.NoUpdates
 
             val task = offlineMapTask.createDownloadPreplannedOfflineMapJob(
-                params, downloadDirectoryPath = getFilePathForId(area.preplannedArea.portalItem.itemId)
+                params,
+                downloadDirectoryPath = getFilePathForId(area.preplannedArea.portalItem.itemId)
             )
 
             task.start()
 
             return task.progress.combine(task.status) { progressUpdate, taskUpdate ->
-                when(taskUpdate) {
+                when (taskUpdate) {
                     JobStatus.Canceling -> {
-                        AreaDownloadStatus.Aborted
+                        AreaDownloadStatus.Aborted(message = "Canceling")
                     }
+
                     JobStatus.Failed -> {
-                        //Should have a better way to propagate error states up
-                        AreaDownloadStatus.Aborted
+                        //TODO: JobStatus doesn't contain error info, need to find a way to propagate
+                        // error states up
+                        AreaDownloadStatus.Aborted(message = "failure")
                     }
+
                     JobStatus.NotStarted -> {
                         AreaDownloadStatus.Idle
                     }
+
                     JobStatus.Paused -> {
                         AreaDownloadStatus.Idle
                     }
+
                     JobStatus.Started -> {
                         AreaDownloadStatus.InProgress(progressUpdate)
                     }
+
                     JobStatus.Succeeded -> {
                         AreaDownloadStatus.Completed
                     }
@@ -109,27 +120,20 @@ class EsriNetworkedMapAreaSource @Inject constructor(
             }
         }
 
-        return flowOf(AreaDownloadStatus.Aborted)
+        return flowOf(AreaDownloadStatus.Aborted(message = "Provided map area is not supported by this handler"))
     }
 
 
-    override suspend fun getRenderableMap(mapType: MapType, id: String): ArcGISMap? {
-        return when(mapType) {
-            MapType.TopLevelMap -> {
-                val portalItem = PortalItem(portal, id)
-                ArcGISMap(portalItem)
-            }
-            MapType.DownloadableMapArea -> {
-                val file = File(getFilePathForId(id))
-                if(file.exists()) {
-                    val mapPack = MobileMapPackage(file.path)
-                    mapPack.load()
-                    mapPack.maps.firstOrNull()
-                } else {
-                    null
-                }
-            }
-            else -> null
+    override suspend fun getRenderableMap(id: String): RepositoryResult<ArcGISMap> {
+        val file = File(getFilePathForId(id))
+        return if (file.exists()) {
+            val mapPack = MobileMapPackage(file.path)
+            mapPack.load()
+            mapPack.maps.firstOrNull()?.let {
+                RepositoryResult.Success(it)
+            } ?: RepositoryResult.Failure(message = "Loading local map failed")
+        } else {
+            RepositoryResult.Failure(message = "Local map was not found in file system")
         }
     }
 

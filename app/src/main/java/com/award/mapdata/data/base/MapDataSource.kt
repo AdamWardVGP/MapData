@@ -1,6 +1,10 @@
 package com.award.mapdata.data.base
 
-abstract class MapDataSource<T> {
-    abstract suspend fun getMapData(id: String): T?
+import com.award.mapdata.data.entity.RepositoryResult
+
+abstract class MapDataSource<T, V> {
+    abstract suspend fun getMapData(id: String): RepositoryResult<T>
+
+    abstract fun getRenderableMap(id: String): RepositoryResult<V>
 
 }

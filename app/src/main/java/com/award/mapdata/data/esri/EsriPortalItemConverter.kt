@@ -1,7 +1,7 @@
 package com.award.mapdata.data.esri
 
 import com.arcgismaps.mapping.PortalItem
-import com.award.mapdata.data.MapType
+import com.award.mapdata.data.entity.MapType
 import com.award.mapdata.data.base.MapDataConverter
 import com.award.mapdata.data.entity.DownloadState
 import com.award.mapdata.data.entity.MapID.*

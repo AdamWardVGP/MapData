@@ -1,18 +1,17 @@
 package com.award.mapdata.feature.maplist
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.award.mapdata.R
 import com.award.mapdata.data.entity.MapID
-import com.award.mapdata.data.entity.MapItemListElement
-import com.award.mapdata.data.entity.MapItemListElement.Divider
-import com.award.mapdata.data.entity.MapItemListElement.Header
-import com.award.mapdata.data.MapRepository
+import com.award.mapdata.feature.maplist.MapItemListElement.Divider
+import com.award.mapdata.feature.maplist.MapItemListElement.Header
+import com.award.mapdata.data.base.MapRepository
 import com.award.mapdata.data.entity.AreaDownloadStatus
 import com.award.mapdata.data.entity.DownloadState
-import com.award.mapdata.data.entity.MapItemListElement.MapElement
+import com.award.mapdata.data.entity.RepositoryResult
+import com.award.mapdata.feature.maplist.MapItemListElement.MapElement
 import com.award.mapdata.data.entity.ViewMapInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -27,8 +26,8 @@ import javax.inject.Inject
 @HiltViewModel
 class MapListViewModel @Inject constructor(
     private val mapRepository: MapRepository,
-    @ApplicationContext context: Context)
-    : ViewModel() {
+    @ApplicationContext context: Context
+) : ViewModel() {
 
     private val _mapListFlow = MutableStateFlow<List<MapItemListElement>>(listOf())
     val mapListFlow: MutableStateFlow<List<MapItemListElement>> = _mapListFlow
@@ -76,7 +75,7 @@ class MapListViewModel @Inject constructor(
             var updatedList = list.subList(0, list.size - 2)
             updatedList = getDownloadableItems(updatedList)
 
-            if(updatedList == null) {
+            if (updatedList == null) {
                 //TODO: render some error
                 return@launch
             }
@@ -85,44 +84,63 @@ class MapListViewModel @Inject constructor(
         }
     }
 
-    private suspend fun getTopLevelMap(): MutableList<MapItemListElement>? {
-        return mapRepository.getTopLevelMap(mapKey)?.let { mapItem ->
-            mutableListOf(
-                Header(webHeaderText),
-                MapElement(mapItem),
-                Divider
-            )
+    private suspend fun getTopLevelMap(): MutableList<MapItemListElement> {
+        return when (val result = mapRepository.getTopLevelMap(mapKey)) {
+            is RepositoryResult.Failure -> {
+                //TODO refactor to handle failures
+                mutableListOf()
+            }
+
+            is RepositoryResult.Success -> {
+                mutableListOf(
+                    Header(webHeaderText),
+                    MapElement(result.payload),
+                    Divider
+                )
+            }
         }
     }
 
     private suspend fun getDownloadableItems(list: MutableList<MapItemListElement>):
             MutableList<MapItemListElement> {
-        val areas = mapRepository.getMapAreas(mapKey)
-        list.add(Header(mapAreaText))
-        areas?.forEach {
-            list.add(MapElement(it))
+        when (val result = mapRepository.getMapAreas(mapKey)) {
+            is RepositoryResult.Success -> {
+                list.add(Header(mapAreaText))
+                result.payload.forEach {
+                    list.add(MapElement(it))
+                }
+                return list
+            }
+
+            is RepositoryResult.Failure -> {
+                //TODO support failures
+                return mutableListOf()
+            }
         }
-        return list
+
     }
 
     fun triggerDownload(mapID: MapID) {
         //TODO inject dispatcher
         viewModelScope.launch(Dispatchers.IO) {
-            mapRepository.downloadMapArea(mapKey, mapID.itemKey)?.collectLatest { downloadState ->
+            mapRepository.downloadMapArea(mapKey, mapID.mapId)?.collectLatest { downloadState ->
                 mutex.withLock {
                     val list = _mapListFlow.value
                     val updatedList = list.map {
-                        if((it is MapElement) && it.mapInfo.itemId.itemKey == mapID.itemKey) {
-                            val newDownloadState = when(downloadState) {
-                                is AreaDownloadStatus.Aborted ->  {
+                        if ((it is MapElement) && it.mapInfo.itemId.mapId == mapID.mapId) {
+                            val newDownloadState = when (downloadState) {
+                                is AreaDownloadStatus.Aborted -> {
                                     DownloadState.Idle
                                 }
-                                is AreaDownloadStatus.Completed ->  {
+
+                                is AreaDownloadStatus.Completed -> {
                                     DownloadState.Downloaded
                                 }
+
                                 is AreaDownloadStatus.Idle -> {
                                     DownloadState.Idle
                                 }
+
                                 is AreaDownloadStatus.InProgress -> {
                                     DownloadState.Downloading((downloadState.progress.toFloat() / 100f))
                                 }
@@ -140,11 +158,11 @@ class MapListViewModel @Inject constructor(
 
     fun triggerDelete(mapID: MapID) {
         viewModelScope.launch(Dispatchers.IO) {
-            if(mapRepository.deleteDownloadedMapArea(mapID.itemKey)) {
+            if (mapRepository.deleteDownloadedMapArea(mapID.mapId)) {
                 //deletion passed update models
                 mutex.withLock {
                     val list = _mapListFlow.value.map {
-                        if((it is MapElement) && it.mapInfo.itemId.itemKey == mapID.itemKey) {
+                        if ((it is MapElement) && it.mapInfo.itemId.mapId == mapID.mapId) {
                             MapElement(updateViewMapInfo(it.mapInfo, DownloadState.Idle))
                         } else {
                             it

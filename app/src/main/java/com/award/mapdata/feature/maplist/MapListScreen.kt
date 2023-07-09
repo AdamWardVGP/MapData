@@ -43,7 +43,6 @@ import com.award.mapdata.R
 import com.award.mapdata.data.entity.DownloadState
 import com.award.mapdata.data.entity.MapID
 import com.award.mapdata.data.mock.MapDataPreviewParamProvider
-import com.award.mapdata.data.entity.MapItemListElement
 import com.award.mapdata.data.mock.MapPreviewData.unavailableDownloadMapInfoSample
 import com.award.mapdata.data.entity.ViewMapInfo
 import com.award.mapdata.ui.theme.MapDataTheme
@@ -56,7 +55,8 @@ fun MapListScreen(
 
     val listState by viewModel.mapListFlow.collectAsState()
 
-    MapItemList(listState,
+    MapItemList(
+        listState,
         openMapDetails,
         viewModel::triggerDelete,
         viewModel::triggerDownload
@@ -69,23 +69,27 @@ fun MapItemList(
     openMapDetails: (ViewMapInfo) -> Unit,
     triggerDelete: (MapID) -> Unit,
     triggerDownload: (MapID) -> Unit,
-    ) {
+) {
     LazyColumn() {
         items(mapListItems, contentType = { it.viewType }) {
             when (it) {
                 MapItemListElement.Divider -> {
                     Divider()
                 }
+
                 is MapItemListElement.Header -> {
                     HeaderRow(title = it.title)
                 }
+
                 is MapItemListElement.MapElement -> {
                     MapRow(
                         mapInfo = it.mapInfo,
                         triggerDelete = triggerDelete,
                         triggerDownload = triggerDownload,
-                        onMapInfoSelected = openMapDetails)
+                        onMapInfoSelected = openMapDetails
+                    )
                 }
+
                 MapItemListElement.Loading -> {
                     LoadingStatus()
                 }
@@ -129,12 +133,13 @@ fun HeaderPreview() {
 
 @Composable
 fun Divider() {
-    Box(modifier = Modifier
-        .padding(horizontal = 3.dp)
-        .height(1.dp)
-        .fillMaxWidth()
-        .background(Color(0xFFE0E0E0))
-        .testTag("divider")
+    Box(
+        modifier = Modifier
+            .padding(horizontal = 3.dp)
+            .height(1.dp)
+            .fillMaxWidth()
+            .background(Color(0xFFE0E0E0))
+            .testTag("divider")
     )
 }
 
@@ -142,9 +147,10 @@ fun Divider() {
 @Preview
 fun LoadingStatus() {
     Surface {
-        Box(modifier = Modifier
-            .height(48.dp)
-            .fillMaxWidth()
+        Box(
+            modifier = Modifier
+                .height(48.dp)
+                .fillMaxWidth()
         ) {
             CircularProgressIndicator(
                 color = Color(0xFF5114DB),
@@ -257,7 +263,8 @@ fun SpacedRowIcon(
     Button(
         onClick = { clickHandler(mapInfo.itemId) },
         colors = ButtonDefaults.buttonColors(Color.Transparent),
-        contentPadding = PaddingValues(0.dp)) {
+        contentPadding = PaddingValues(0.dp)
+    ) {
         Image(
             painter = painterResource(iconRes),
             contentDescription = stringResource(id = description),

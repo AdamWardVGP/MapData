@@ -42,6 +42,8 @@ class MapListViewModel @Inject constructor(
     //Locking mechanism to prevent race condition access modifying multiple downloads in the mapList
     private val mutex = Mutex()
 
+    //TODO do we want to restore via a SavedStateHandle?
+
     init {
         populateList()
     }

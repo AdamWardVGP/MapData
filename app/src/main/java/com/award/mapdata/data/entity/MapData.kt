@@ -1,6 +1,7 @@
 package com.award.mapdata.data.entity
 
 import com.arcgismaps.tasks.offlinemaptask.PreplannedMapArea
+import com.award.mapdata.data.MapType
 
 sealed class DownloadState {
 
@@ -31,8 +32,8 @@ data class ViewMapInfo(
 /**
  * Generalized IDs to ensure strong type matching across calls to data layer
  */
-sealed class MapID(val itemKey: String) {
-    class EsriID(itemKey: String): MapID(itemKey)
+sealed class MapID(val mapType: String, val itemKey: String) {
+    class EsriID(mapType: MapType, itemKey: String): MapID(mapType.id, itemKey)
 }
 
 sealed class MapItemListElement(val viewType: Int) {

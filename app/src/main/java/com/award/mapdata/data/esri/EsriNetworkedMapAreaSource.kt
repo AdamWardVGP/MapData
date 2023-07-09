@@ -1,6 +1,8 @@
 package com.award.mapdata.data.esri
 
 import android.util.Log
+import com.arcgismaps.mapping.ArcGISMap
+import com.arcgismaps.mapping.MobileMapPackage
 import com.arcgismaps.mapping.PortalItem
 import com.arcgismaps.portal.Portal
 import com.arcgismaps.tasks.JobStatus
@@ -8,6 +10,8 @@ import com.arcgismaps.tasks.offlinemaptask.DownloadPreplannedOfflineMapParameter
 import com.arcgismaps.tasks.offlinemaptask.OfflineMapTask
 import com.arcgismaps.tasks.offlinemaptask.PreplannedMapArea
 import com.arcgismaps.tasks.offlinemaptask.PreplannedUpdateMode
+import com.award.mapdata.data.MapType
+import com.award.mapdata.data.RenderableResult
 import com.award.mapdata.data.base.DownloadableMapAreaSource
 import com.award.mapdata.data.entity.AreaDownloadStatus
 import com.award.mapdata.data.entity.AreaInfo
@@ -37,7 +41,7 @@ class EsriNetworkedMapAreaSource @Inject constructor(
     }
 
     override fun isAreaDownloaded(areaId: String): Boolean {
-        return File(downloadFile.path + File.separator + areaId).exists()
+        return File(getFilePathForId(areaId)).exists()
     }
 
     override fun deletePreplannedArea(id: String): Boolean {
@@ -59,19 +63,23 @@ class EsriNetworkedMapAreaSource @Inject constructor(
             }
         }
 
-        //TODO: This all assumes the item isn't already downloaded
+        //TODO: This all assumes the item isn't already downloaded, or in progress downloading
+        //
         // Also unsure of the download state in case of an abort/failure
         // we should check for existing items, their validity, and add cleanup
+        //
+        // Also these tasks are fired and forgotten about. We should retain active tasks for cancellation
 
         (area as? AreaInfo.EsriMapArea)?.let {
             val offlineMapTask = OfflineMapTask(
                 PortalItem(portal, area.parentPortalItem)
             )
+
             val params = DownloadPreplannedOfflineMapParameters(preplannedMapArea = area.preplannedArea)
             params.updateMode = PreplannedUpdateMode.NoUpdates
 
             val task = offlineMapTask.createDownloadPreplannedOfflineMapJob(
-                params, downloadDirectoryPath = downloadFile.path + File.separator + area.preplannedArea.portalItem.itemId
+                params, downloadDirectoryPath = getFilePathForId(area.preplannedArea.portalItem.itemId)
             )
 
             task.start()
@@ -102,6 +110,31 @@ class EsriNetworkedMapAreaSource @Inject constructor(
         }
 
         return flowOf(AreaDownloadStatus.Aborted)
+    }
+
+
+    override suspend fun getRenderableMap(mapType: MapType, id: String): ArcGISMap? {
+        return when(mapType) {
+            MapType.TopLevelMap -> {
+                val portalItem = PortalItem(portal, id)
+                ArcGISMap(portalItem)
+            }
+            MapType.DownloadableMapArea -> {
+                val file = File(getFilePathForId(id))
+                if(file.exists()) {
+                    val mapPack = MobileMapPackage(file.path)
+                    mapPack.load()
+                    mapPack.maps.firstOrNull()
+                } else {
+                    null
+                }
+            }
+            else -> null
+        }
+    }
+
+    private fun getFilePathForId(itemId: String): String {
+        return downloadFile.path + File.separator + itemId
     }
 
 }

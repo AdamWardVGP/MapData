@@ -27,9 +27,9 @@ fun MapDataNavHost(
             val viewModel = hiltViewModel<MapListViewModel>()
             MapListScreen(
                 viewModel,
-                openMapDetails = { mapId ->
+                openMapDetails = { mapInfo ->
                     navController.navigate(
-                        MapDetails.getRouteForId(mapId.itemId.itemKey)
+                        MapDetails.getRouteForId(mapInfo.itemId.mapType, mapInfo.itemId.itemKey)
                     )
                 }
             )
@@ -37,11 +37,7 @@ fun MapDataNavHost(
         composable(route = MapDetails.routeWithArgs,
             arguments =  MapDetails.arguments) { navEntry ->
             val viewModel = hiltViewModel<MapDetailViewModel>()
-            navEntry.arguments?.getString(MapDetails.argMapID)?.let {
-                MapDetailScreen(
-                    viewModel,
-                    it)
-            } ?: MapDetailScreen(viewModel)
+            MapDetailScreen(viewModel)
         }
     }
 }

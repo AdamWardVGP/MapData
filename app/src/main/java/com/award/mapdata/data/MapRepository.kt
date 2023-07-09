@@ -1,5 +1,6 @@
 package com.award.mapdata.data
 
+import com.arcgismaps.mapping.ArcGISMap
 import com.arcgismaps.mapping.PortalItem
 import com.arcgismaps.tasks.offlinemaptask.PreplannedMapArea
 import com.award.mapdata.data.base.DownloadableMapAreaSource
@@ -21,6 +22,8 @@ abstract class MapRepository {
     abstract suspend fun downloadMapArea(parentId: String, childId: String): Flow<AreaDownloadStatus>?
 
     abstract fun deleteDownloadedMapArea(id: String): Boolean
+
+    abstract suspend fun getRenderableMap(mapType: MapType, id: String): RenderableResult
 }
 
 class EsriMapRepository @Inject constructor(
@@ -37,7 +40,7 @@ class EsriMapRepository @Inject constructor(
     override suspend fun getTopLevelMap(id: String): ViewMapInfo? {
         //TODO support offline first storage here
         return remoteMapDataSource.getMapData(id)
-            ?.let { mapDataDomainConverter.convertToGenericData(it) }
+            ?.let { mapDataDomainConverter.convertToGenericData(MapType.TopLevelMap, it) }
     }
 
     override suspend fun getMapAreas(id: String): List<ViewMapInfo>? {
@@ -47,7 +50,7 @@ class EsriMapRepository @Inject constructor(
             } else {
                 DownloadState.Idle
             }
-            mapAreaDataConverter.convertToGenericData(it, downloadState)
+            mapAreaDataConverter.convertToGenericData(MapType.DownloadableMapArea, it, downloadState)
         }
     }
 
@@ -62,6 +65,12 @@ class EsriMapRepository @Inject constructor(
 
     override fun deleteDownloadedMapArea(id: String): Boolean {
         return remoteDownloadableDataSource.deletePreplannedArea(id)
+    }
+
+    override suspend fun getRenderableMap(mapType: MapType, id: String): RenderableResult {
+        return remoteDownloadableDataSource.getRenderableMap(mapType, id)?.let {
+            RenderableResult.ArcGisMap(it)
+        } ?: RenderableResult.Error
     }
 
     override suspend fun downloadMapArea(parentId: String, childId: String): Flow<AreaDownloadStatus>? {

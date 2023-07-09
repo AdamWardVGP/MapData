@@ -4,7 +4,7 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 
 
-interface MapNavDestination {
+sealed interface MapNavDestination {
     val route: String
 }
 object MapList : MapNavDestination {
@@ -14,16 +14,22 @@ object MapDetails: MapNavDestination {
     override val route = "map_details"
 
     const val argMapID = "map_id"
-    val routeWithArgs = "${route}/{${argMapID}}"
+    const val argMapType = "map_type"
+
+    val routeWithArgs = "${route}/{${argMapType}}:{${argMapID}}"
 
     val arguments = listOf(
+        navArgument(argMapType) {
+            type = NavType.StringType
+            nullable = false
+        },
         navArgument(argMapID) {
             type = NavType.StringType
             nullable = false
         }
     )
 
-    fun getRouteForId(mapId: String): String {
-        return "${route}/$mapId"
+    fun getRouteForId(mapType: String, mapId: String): String {
+        return "${route}/$mapType:$mapId"
     }
 }

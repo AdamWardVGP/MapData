@@ -15,4 +15,6 @@ abstract class DownloadableMapAreaSource<T, V> {
     abstract fun deletePreplannedArea(id: String): Boolean
 
     abstract suspend fun getRenderableMap(id: String): RepositoryResult<V>
+
+    abstract suspend fun cancelRunningDownloads()
 }

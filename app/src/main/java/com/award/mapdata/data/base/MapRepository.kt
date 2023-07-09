@@ -23,5 +23,7 @@ abstract class MapRepository {
         mapType: MapType,
         id: String
     ): RepositoryResult<RenderableResult>
+
+    abstract suspend fun cancelRunningDownloads()
 }
 

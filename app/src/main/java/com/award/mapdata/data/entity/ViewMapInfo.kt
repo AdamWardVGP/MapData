@@ -40,7 +40,7 @@ sealed class AreaDownloadStatus {
     class InProgress(val progress: Int) : AreaDownloadStatus()
 
     class Aborted(
-        val Exception: Exception? = null,
+        val exception: Exception? = null,
         val message: String? = null
     ) : AreaDownloadStatus()
 

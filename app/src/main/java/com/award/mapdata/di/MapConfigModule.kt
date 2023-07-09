@@ -1,6 +1,5 @@
 package com.award.mapdata.di
 
-import android.app.Application
 import android.content.Context
 import com.award.mapdata.BuildConfig
 import com.award.mapdata.R

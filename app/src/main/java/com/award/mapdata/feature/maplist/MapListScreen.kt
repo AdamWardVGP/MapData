@@ -278,7 +278,7 @@ fun SpacedRowIcon(
 
 @Preview(showBackground = true, backgroundColor = 0xFFFFFFFF, widthDp = 540)
 @Composable
-fun previewMapRow() {
+fun PreviewMapRow() {
     Surface {
         MapRow(
             unavailableDownloadMapInfoSample,

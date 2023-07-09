@@ -65,8 +65,6 @@ class MapListViewModel @Inject constructor(
             _mapListFlow.value = listOf(MapItemListElement.Loading)
 
             val list: MutableList<MapItemListElement> = getTopLevelMap()
-                ?: //TODO: render some error instead
-                return@launch
 
             //temp update to loading, and remove element after
             list.add(MapItemListElement.Loading)
@@ -74,11 +72,6 @@ class MapListViewModel @Inject constructor(
 
             var updatedList = list.subList(0, list.size - 2)
             updatedList = getDownloadableItems(updatedList)
-
-            if (updatedList == null) {
-                //TODO: render some error
-                return@launch
-            }
 
             _mapListFlow.value = updatedList
         }
@@ -103,18 +96,18 @@ class MapListViewModel @Inject constructor(
 
     private suspend fun getDownloadableItems(list: MutableList<MapItemListElement>):
             MutableList<MapItemListElement> {
-        when (val result = mapRepository.getMapAreas(mapKey)) {
+        return when (val result = mapRepository.getMapAreas(mapKey)) {
             is RepositoryResult.Success -> {
                 list.add(Header(mapAreaText))
                 result.payload.forEach {
                     list.add(MapElement(it))
                 }
-                return list
+                list
             }
 
             is RepositoryResult.Failure -> {
                 //TODO support failures
-                return mutableListOf()
+                mutableListOf()
             }
         }
 
@@ -123,7 +116,7 @@ class MapListViewModel @Inject constructor(
     fun triggerDownload(mapID: MapID) {
         //TODO inject dispatcher
         viewModelScope.launch(Dispatchers.IO) {
-            mapRepository.downloadMapArea(mapKey, mapID.mapId)?.collectLatest { downloadState ->
+            mapRepository.downloadMapArea(mapKey, mapID.mapId).collectLatest { downloadState ->
                 mutex.withLock {
                     val list = _mapListFlow.value
                     val updatedList = list.map {

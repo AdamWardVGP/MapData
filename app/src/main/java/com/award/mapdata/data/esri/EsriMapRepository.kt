@@ -17,7 +17,9 @@ import com.award.mapdata.data.entity.ViewMapInfo
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class EsriMapRepository @Inject constructor(
     private val remoteMapDataSource: MapDataSource<PortalItem, ArcGISMap>,
     private val mapDataDomainConverter: MapDataConverter<PortalItem>,
@@ -124,6 +126,10 @@ class EsriMapRepository @Inject constructor(
                 RepositoryResult.Failure(message = "Invalid Map Type");
             }
         }
+    }
+
+    override suspend fun cancelRunningDownloads() {
+        remoteDownloadableDataSource.cancelRunningDownloads()
     }
 
     override suspend fun downloadMapArea(

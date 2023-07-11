@@ -12,7 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
 import com.arcgismaps.mapping.view.MapView
-import com.award.mapdata.data.entity.RenderableResult
+import com.award.mapdata.data.entity.view.RenderableResult
 import com.award.mapdata.data.entity.RepositoryResult
 
 @Composable

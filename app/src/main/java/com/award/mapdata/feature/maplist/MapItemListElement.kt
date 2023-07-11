@@ -1,6 +1,6 @@
 package com.award.mapdata.feature.maplist
 
-import com.award.mapdata.data.entity.ViewMapInfo
+import com.award.mapdata.data.entity.view.ViewMapInfo
 
 sealed class MapItemListElement(val viewType: Int) {
     class Header(val title: String) : MapItemListElement(1)

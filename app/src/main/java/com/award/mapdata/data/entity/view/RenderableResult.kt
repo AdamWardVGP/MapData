@@ -1,4 +1,4 @@
-package com.award.mapdata.data.entity
+package com.award.mapdata.data.entity.view
 
 import com.arcgismaps.mapping.ArcGISMap
 

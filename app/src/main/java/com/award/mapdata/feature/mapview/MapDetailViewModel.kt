@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.award.mapdata.data.base.MapRepository
 import com.award.mapdata.data.entity.MapType
-import com.award.mapdata.data.entity.RenderableResult
+import com.award.mapdata.data.entity.view.RenderableResult
 import com.award.mapdata.data.entity.RepositoryResult
 import com.award.mapdata.navigation.MapDetails
 import dagger.hilt.android.lifecycle.HiltViewModel

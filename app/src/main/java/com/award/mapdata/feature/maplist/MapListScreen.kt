@@ -40,11 +40,11 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.award.mapdata.R
-import com.award.mapdata.data.entity.DownloadState
+import com.award.mapdata.data.entity.view.DownloadViewState
 import com.award.mapdata.data.entity.MapID
 import com.award.mapdata.data.mock.MapDataPreviewParamProvider
 import com.award.mapdata.data.mock.MapPreviewData.unavailableDownloadMapInfoSample
-import com.award.mapdata.data.entity.ViewMapInfo
+import com.award.mapdata.data.entity.view.ViewMapInfo
 import com.award.mapdata.ui.theme.MapDataTheme
 
 @Composable
@@ -53,7 +53,7 @@ fun MapListScreen(
     openMapDetails: (ViewMapInfo) -> Unit
 ) {
 
-    val listState by viewModel.mapListFlow.collectAsState()
+    val listState by viewModel.mapListFlow.collectAsState(listOf())
 
     MapItemList(
         listState,
@@ -223,16 +223,16 @@ fun MapRow(
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            when (mapInfo.downloadState) {
-                is DownloadState.Downloaded -> {
+            when (mapInfo.downloadViewState) {
+                is DownloadViewState.Downloaded -> {
                     SpacedRowIcon(R.drawable.delete, mapInfo, triggerDelete, R.string.delete)
                 }
 
-                is DownloadState.Downloading -> {
+                is DownloadViewState.Downloading -> {
                     Spacer(modifier = Modifier.size(19.5.dp))
                     //download is in progress, update progress indicator
                     CircularProgressIndicator(
-                        progress = mapInfo.downloadState.progressPercentage,
+                        progress = mapInfo.downloadViewState.progressPercentage,
                         color = Color(0xFF5114DB),
                         strokeWidth = 3.dp,
                         modifier = Modifier.testTag("progress_indicator")
@@ -240,11 +240,11 @@ fun MapRow(
                     Spacer(modifier = Modifier.size(17.25.dp))
                 }
 
-                is DownloadState.Idle -> {
+                is DownloadViewState.Idle -> {
                     SpacedRowIcon(R.drawable.download, mapInfo, triggerDownload, R.string.download)
                 }
 
-                is DownloadState.Unavailable -> {
+                is DownloadViewState.Unavailable -> {
                     Spacer(modifier = Modifier.size(21.75.dp))
                 }
             }

@@ -62,7 +62,6 @@ fun MapDataApp() {
                         actionIconContentColor = Color.White
                     ),
                     title = {
-                        //TODO pages themselves should probably provide their titles instead.
                         Text(text = stringResource(id = R.string.title))
                     },
                     navigationIcon = {

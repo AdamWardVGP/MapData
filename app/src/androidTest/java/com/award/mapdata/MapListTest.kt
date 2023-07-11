@@ -7,7 +7,7 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.platform.app.InstrumentationRegistry
-import com.award.mapdata.data.entity.DownloadState
+import com.award.mapdata.data.entity.view.DownloadViewState
 import com.award.mapdata.feature.maplist.MapItemListElement
 import com.award.mapdata.data.mock.MapPreviewData.downloadedMapInfoSample
 import com.award.mapdata.data.mock.MapPreviewData.downloadingMapInfoSample
@@ -107,7 +107,7 @@ class MapListTest {
     fun checkExpectedContents_whenRowIsDownloading() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val sampleData = downloadingMapInfoSample
-        val downloadInfo = downloadingMapInfoSample.downloadState as DownloadState.Downloading
+        val downloadInfo = downloadingMapInfoSample.downloadViewState as DownloadViewState.Downloading
 
         composeRule.setContent {
             MapItemList(

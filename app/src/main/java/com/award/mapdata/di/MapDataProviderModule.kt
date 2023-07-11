@@ -31,5 +31,5 @@ abstract class MapDataProviderModule {
     abstract fun bindEsriConverter(impl: EsriPortalItemConverter): MapDataConverter<PortalItem>
 
     @Binds
-    abstract fun bindEsriMapAreaSource(impl: EsriNetworkedMapAreaSource): DownloadableMapAreaSource<PreplannedMapArea, ArcGISMap>
+    abstract fun bindEsriMapAreaSource(impl: EsriNetworkedMapAreaSource): DownloadableMapAreaSource<PreplannedMapArea>
 }

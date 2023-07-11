@@ -2,11 +2,11 @@ package com.award.mapdata.data.mock
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.award.mapdata.data.entity.MapType
-import com.award.mapdata.data.entity.DownloadState
+import com.award.mapdata.data.entity.view.DownloadViewState
 import com.award.mapdata.data.entity.MapID
 import com.award.mapdata.feature.maplist.MapItemListElement
 import com.award.mapdata.feature.maplist.MapItemListElement.*
-import com.award.mapdata.data.entity.ViewMapInfo
+import com.award.mapdata.data.entity.view.ViewMapInfo
 import com.award.mapdata.data.mock.MapPreviewData.dataElements
 
 class MapDataPreviewParamProvider
@@ -21,7 +21,7 @@ object MapPreviewData {
         title = "Maine",
         imageUri = "",
         description = "Maine is a state in the new england region of the northeastern United States. Main is the 12th smallest by area, the 9th least",
-        downloadState = DownloadState.Unavailable
+        downloadViewState = DownloadViewState.Unavailable
     )
 
     val idleDownloadMapInfoSample = ViewMapInfo(
@@ -29,7 +29,7 @@ object MapPreviewData {
         title = "Acadia",
         imageUri = "",
         description = "Acadia National Park is an American national park located int he state of Maine, southwest of Bar Harbor.",
-        downloadState = DownloadState.Idle
+        downloadViewState = DownloadViewState.Idle
     )
 
     val downloadingMapInfoSample = ViewMapInfo(
@@ -37,7 +37,7 @@ object MapPreviewData {
         title = "Boston",
         imageUri = "",
         description = "Maine is a state int he New England region of the northeastern United States. Maine is the 12th smallest",
-        downloadState = DownloadState.Downloading(0.57f)
+        downloadViewState = DownloadViewState.Downloading(0.57f)
     )
 
     val downloadedMapInfoSample = ViewMapInfo(
@@ -45,7 +45,7 @@ object MapPreviewData {
         title = "Baxter State Park",
         imageUri = "",
         description = "Baxter State Park is a large wilderness area permanently preserved as a state park, located in",
-        downloadState = DownloadState.Downloaded
+        downloadViewState = DownloadViewState.Downloaded
     )
 
     val dataElements = listOf(
@@ -62,7 +62,7 @@ object MapPreviewData {
                 title = "Greater Portland",
                 imageUri = "",
                 description = "The Greater Portland metropolitan area is home to over half a million people, more than one-third of",
-                downloadState = DownloadState.Idle
+                downloadViewState = DownloadViewState.Idle
             )
         ),
         MapElement(
@@ -71,7 +71,7 @@ object MapPreviewData {
                 title = "Caribou",
                 imageUri = "",
                 description = "Caribou is the second largest city in Aroostook County, Maine, United States. Its population was 8189 at",
-                downloadState = DownloadState.Downloading(0.22f)
+                downloadViewState = DownloadViewState.Downloading(0.22f)
             )
         ),
         MapElement(
@@ -80,7 +80,7 @@ object MapPreviewData {
                 title = "Bangor",
                 imageUri = "",
                 description = "Bangor is a city in the U.S. state of Maine, and the county seat of Penobscot County. The city proper",
-                downloadState = DownloadState.Downloaded
+                downloadViewState = DownloadViewState.Downloaded
             )
         ),
     )

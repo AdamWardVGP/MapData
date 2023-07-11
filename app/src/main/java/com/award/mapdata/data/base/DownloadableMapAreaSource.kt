@@ -9,7 +9,10 @@ import kotlinx.coroutines.flow.StateFlow
 abstract class DownloadableMapAreaSource<T> {
     abstract fun getMapAreas(id: String): StateFlow<AreaItemsList<T>>
 
-    abstract suspend fun downloadPreplannedArea(parentId: String, childId: String): AreaDownloadStatus
+    abstract suspend fun downloadPreplannedArea(
+        parentId: String,
+        childId: String
+    ): AreaDownloadStatus
 
     abstract suspend fun getRenderableMap(id: String): RepositoryResult<RenderableResult>
 

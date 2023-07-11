@@ -1,6 +1,5 @@
 package com.award.mapdata.data.esri
 
-import android.util.Log
 import com.arcgismaps.mapping.ArcGISMap
 import com.arcgismaps.mapping.PortalItem
 import com.arcgismaps.tasks.offlinemaptask.PreplannedMapArea
@@ -86,7 +85,7 @@ class EsriMapRepository @Inject constructor(
             }
 
             MapType.Unknown -> {
-                RepositoryResult.Failure(message = "Invalid Map Type");
+                RepositoryResult.Failure(message = "Invalid Map Type")
             }
         }
     }

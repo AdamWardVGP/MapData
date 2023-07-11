@@ -70,7 +70,7 @@ fun MapItemList(
     triggerDelete: (MapID) -> Unit,
     triggerDownload: (MapID) -> Unit,
 ) {
-    LazyColumn() {
+    LazyColumn {
         items(mapListItems, contentType = { it.viewType }) {
             when (it) {
                 MapItemListElement.Divider -> {
